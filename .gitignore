@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+nul
+
+# Blender
+*.blend1
+*.blend2
+*.bld
+# Only keep source .blend files used in tests, not outputs
+blender_test_output/
+
+# Test output
+blender_512_compat_report.json
+blender_mcp_analysis.json
+compatibility_report.json
+docs/REGRESSION_REPORT.json
+docs/REGRESSION_SUMMARY.txt
+*.crash.txt
+
+# Release temp
+.release_temp/
+*.zip
+
+# Local config (secrets)
+src/blender_mcp/config.py
+.env
+*.env.local
+
+# Logs
+*.log
+*.log.*
+
+# Distribution / packaging
+.gitlab-ci.yml
+dist/
+build/
+.wheels/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.mypy_cache/
+
+# uv
+uv.lock

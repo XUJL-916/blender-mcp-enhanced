@@ -1,0 +1,66 @@
+"""
+Blender-MCP Local Configuration
+
+This file contains API keys and local settings. It is NOT committed to version control.
+Copy config.py.example to config.py and fill in your keys.
+
+    cp config.py.example config.py
+
+Edit the values below and remove this warning.
+"""
+
+# ============================================================
+# Connection Settings
+# ============================================================
+connection = {
+    "host": "localhost",        # Blender addon TCP host
+    "port": 9876,               # Blender addon TCP port
+    "timeout": 180.0,           # Socket timeout in seconds
+    "max_retries": 3,           # Connection retry attempts
+    "retry_delay": 1.0,         # Delay between retries (seconds)
+}
+
+# ============================================================
+# API Keys (fill in your keys, leave empty to use env vars)
+# ============================================================
+api_keys = {
+    # Hyper3D Rodin
+    "hyper3d_api_key": "",      # Main site API key
+    "hyper3d_fal_api_key": "",  # FAL.AI API key
+    "hyper3d_mode": "MAIN_SITE", # MAIN_SITE | FAL_AI
+
+    # Hunyuan3D
+    "hunyuan3d_secret_id": "",  # Tencent Cloud SecretId
+    "hunyuan3d_secret_key": "", # Tencent Cloud SecretKey
+    "hunyuan3d_mode": "OFFICIAL_API", # OFFICIAL_API | LOCAL_API
+
+    # PolyHaven
+    "polyhaven_api_key": "",    # Optional for rate limiting
+
+    # Sketchfab
+    "sketchfab_api_key": "",    # Required for model download
+
+    # Telemetry (Supabase)
+    "supabase_url": "",         # Supabase project URL
+    "supabase_anon_key": "",    # Supabase anon key
+}
+
+# ============================================================
+# Telemetry Settings
+# ============================================================
+telemetry = {
+    "enabled": True,            # Set False to disable all telemetry
+    "max_prompt_length": 1000,  # Max characters to log per prompt
+    "event_queue_maxsize": 1000,
+    "flush_interval": 30.0,     # Seconds between batch sends
+}
+
+# ============================================================
+# Feature Flags
+# ============================================================
+blender = {
+    "polyhaven_enabled": False, # Enable PolyHaven asset integration
+    "sketchfab_enabled": False, # Enable Sketchfab model integration
+    "telemetry_enabled": True,  # Enable telemetry collection
+    "log_level": "INFO",        # DEBUG | INFO | WARNING | ERROR
+}
