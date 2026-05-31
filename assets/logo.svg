@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <!-- Background -->
+  <rect width="800" height="200" fill="#0f172a" rx="12"/>
+  
+  <!-- Logo icon - Blender-like sphere with circuit lines -->
+  <g transform="translate(80, 100)">
+    <!-- Outer glow -->
+    <circle cx="0" cy="0" r="55" fill="none" stroke="#22d3ee" stroke-width="2" opacity="0.3">
+      <animate attributeName="r" values="55;60;55" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.5;0.3" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Main sphere -->
+    <circle cx="0" cy="0" r="45" fill="#1e3a5f" stroke="#22d3ee" stroke-width="3"/>
+    
+    <!-- Inner lines (Blender-style) -->
+    <ellipse cx="0" cy="0" rx="45" ry="20" fill="none" stroke="#4a9eed" stroke-width="1.5" opacity="0.7"/>
+    <ellipse cx="0" cy="0" rx="20" ry="45" fill="none" stroke="#4a9eed" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-45" y1="0" x2="45" y2="0" stroke="#4a9eed" stroke-width="1.5" opacity="0.7"/>
+    <line x1="0" y1="-45" x2="0" y2="45" stroke="#4a9eed" stroke-width="1.5" opacity="0.7"/>
+    
+    <!-- Connection dots -->
+    <circle cx="22" cy="-22" r="4" fill="#f59e0b"/>
+    <circle cx="-22" cy="-22" r="4" fill="#22c55e"/>
+    <circle cx="22" cy="22" r="4" fill="#8b5cf6"/>
+    <circle cx="-22" cy="22" r="4" fill="#ef4444"/>
+  </g>
+  
+  <!-- Circuit lines from logo -->
+  <path d="M 135 100 L 170 100" stroke="#4a9eed" stroke-width="2" opacity="0.5"/>
+  <path d="M 170 100 L 190 80 L 210 80" stroke="#4a9eed" stroke-width="2" opacity="0.5"/>
+  <path d="M 170 100 L 190 120 L 210 120" stroke="#4a9eed" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Text -->
+  <text x="230" y="90" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="#e5e5e5">
+    Blender-MCP
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="230" y="125" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#22d3ee">
+    Enhanced
+  </text>
+  
+  <!-- Version badge -->
+  <rect x="480" y="60" width="100" height="40" fill="#1a4d2e" rx="8" stroke="#22c55e" stroke-width="2"/>
+  <text x="530" y="86" font-family="Arial, sans-serif" font-size="18" fill="#22c55e" text-anchor="middle" font-weight="bold">
+    v1.5.5
+  </text>
+  
+  <!-- Copyright line -->
+  <text x="600" y="135" font-family="Arial, sans-serif" font-size="14" fill="#a0a0a0">
+    XUJL | Shenzhen University (SZU)
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="160" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    AI-Powered 3D Automation
+  </text>
+</svg>

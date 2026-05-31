@@ -1,6 +1,11 @@
 # Blender-MCP Enhanced
 
-> **版本**: 1.5.5-enh | **迭代日期**: 2026-06-01 | **Target Blender**: 5.1.2 | **Python**: 3.13 | **状态**: CONDITIONAL PASS
+<!-- Logo -->
+<p align="center">
+  <img src="assets/logo.svg" alt="Blender-MCP Enhanced Logo" width="700">
+</p>
+
+> **版本**: 1.5.5-enh | **迭代日期**: 2026-06-01 | **Target Blender**: 5.1.2 | **Python**: 3.13 | **状态**: CONDITIONAL PASS | **作者**: XUJL | Shenzhen University (SZU)
 
 ---
 
