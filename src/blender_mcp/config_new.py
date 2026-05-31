@@ -1,19 +1,24 @@
-"""
-Blender-MCP Configuration Management
-
-Provides centralized configuration for API keys, connection settings,
-and feature flags. Loaded from config.py (local) or environment variables.
-
-This module is intentionally NOT committed to version control.
-Use config.py.example as a template.
-
-Usage:
-    from blender_mcp.config import config
-    print(config.hyper3d_api_key)
-
-Environment variable override (always takes precedence):
-    export BLENDER_MCP_HYPER3D_API_KEY="your_key"
-"""
+#================================================================
+#  ================================================================
+#  config_new.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Configuration management — settings loading, validation, environment variable handling and defaults
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import os
 import logging

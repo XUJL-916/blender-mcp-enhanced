@@ -1,14 +1,24 @@
-"""
-阶段1 - 测试1: 真实对象创建
-Blender 5.1.2 真实 bpy 操作，不 mock 任何内容。
-
-测试:
-- 创建 Cube
-- 创建 Sphere
-- 创建 Collection
-- 创建 Parent 关系
-验证 bpy.data.objects 真实存在
-"""
+#================================================================
+#  ================================================================
+#  test1_create_objects.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import bpy
 import sys

@@ -1,14 +1,24 @@
-"""
-Blender-MCP 5.1.2 Compatibility Checker
-
-Static analysis of addon.py against Blender 5.1.2 Python API breaking changes.
-Covers: bpy.props, Operators/Panels, shader nodes, animation/fcurves,
-render settings, import/export operators, viewport screenshot,
-addon registration/unregistration.
-
-Run from project root:
-    python scripts/check_blender_512_compatibility.py
-"""
+#================================================================
+#  ================================================================
+#  check_blender_512_compatibility.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import re
 import sys

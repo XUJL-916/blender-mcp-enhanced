@@ -1,3 +1,25 @@
+#================================================================
+#  ================================================================
+#  run_tests.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
+
 # Blender-MCP 真实运行时测试基础设施
 # Blender 5.1.2 + bpy 真实执行 + MCP 通信端到端
 

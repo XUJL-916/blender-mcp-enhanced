@@ -1,7 +1,24 @@
-"""
-Blender-MCP 完整测试运行器
-按顺序执行所有测试，生成最终报告。
-"""
+#================================================================
+#  ================================================================
+#  main_test_runner.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Runtime test runner — orchestrates Blender headless test execution and result aggregation
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import subprocess
 import sys

@@ -1,7 +1,24 @@
-"""
-Phase 5: Final Production Acceptance Report Generator
-Aggregates all test results and generates comprehensive report.
-"""
+#================================================================
+#  ================================================================
+#  generate_reports.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Report generator — creates structured JSON/Markdown test reports from runtime results
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import json
 import sys

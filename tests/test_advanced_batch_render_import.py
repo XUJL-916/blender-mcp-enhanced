@@ -1,12 +1,24 @@
-"""
-Tests for Advanced Batch Operations, Render Automation,
-Animation Import/Export, and Scene Snapshot modules.
-
-This file targets ONLY the NEW methods appended to advanced_objects.py
-and does not modify any existing code or tests.
-
-Run: .venv/Scripts/python.exe -m pytest tests/test_advanced_batch_render_import.py -v
-"""
+#================================================================
+#  ================================================================
+#  test_advanced_batch_render_import.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import sys
 import os

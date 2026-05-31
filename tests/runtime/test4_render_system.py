@@ -1,11 +1,24 @@
-"""
-阶段1 - 测试4: 真实渲染系统
-Blender 5.1.2 真实渲染，验证 Eevee 和 Cycles 引擎。
-测试:
-- EEVEE 渲染 PNG
-- Cycles 渲染 PNG
-验证渲染文件真实生成
-"""
+#================================================================
+#  ================================================================
+#  test4_render_system.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import bpy
 import sys

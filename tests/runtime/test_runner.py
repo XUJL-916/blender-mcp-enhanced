@@ -1,8 +1,24 @@
-"""
-Phase 4: Regression Test Runner
-Runs all runtime tests, detects regressions, generates report.
-Designed to run on every commit.
-"""
+#================================================================
+#  ================================================================
+#  test_runner.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Test runner base — provides common test infrastructure and reporting utilities
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import subprocess
 import sys

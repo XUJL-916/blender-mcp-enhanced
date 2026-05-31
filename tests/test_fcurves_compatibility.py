@@ -1,14 +1,24 @@
-"""
-Tests for Blender 5.x animation API compatibility layer.
-
-Pure Python mock tests — no Blender instance required.
-Verifies that get_action_fcurves() and get_action_keyframe_count()
-correctly handle both legacy (Blender 4.x) and new (Blender 5.x)
-action.fcurves data structures.
-
-The compatibility logic is defined here directly (mirrors addon.py)
-so tests can run without importing addon.py (which has many external deps).
-"""
+#================================================================
+#  ================================================================
+#  test_fcurves_compatibility.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import pytest
 

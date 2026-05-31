@@ -1,9 +1,24 @@
-"""
-Blender-MCP Version Compatibility Checker
-
-Checks for Python version mismatches, dependency conflicts,
-and addon version inconsistencies. Runs as a standalone diagnostic tool.
-"""
+#================================================================
+#  ================================================================
+#  check_compatibility.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import os
 import sys

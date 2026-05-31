@@ -1,3 +1,25 @@
+#================================================================
+#  ================================================================
+#  fix_tests.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Test compatibility fixer — patches Blender 5.1.2 API changes in runtime tests
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
+
 #!/usr/bin/env python
 """Fix all runtime test issues for Blender 5.1.2 compatibility."""
 import re

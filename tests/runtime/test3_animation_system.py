@@ -1,14 +1,24 @@
-"""
-阶段1 - 测试3: 真实动画系统
-Blender 5.1.2 真实 bpy 动画操作，不 mock 任何内容。
-
-测试:
-- 位置动画 (FCurve)
-- 旋转动画 (FCurve)
-- 缩放动画 (FCurve)
-- Shape Key 变形动画
-验证 fcurves 真实生成 (Blender 5.1.2: action.layers[].strips[].channelbags[].fcurves)
-"""
+#================================================================
+#  ================================================================
+#  test3_animation_system.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import bpy
 import sys

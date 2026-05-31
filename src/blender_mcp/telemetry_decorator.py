@@ -1,6 +1,24 @@
-"""
-Telemetry decorator for Blender MCP tools
-"""
+#================================================================
+#  ================================================================
+#  telemetry_decorator.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Telemetry decorator — function call tracking, timing metrics and analytics collection
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import functools
 import inspect

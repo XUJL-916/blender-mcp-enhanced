@@ -1,24 +1,24 @@
-"""
-Blender Advanced Object Operations API
-
-High-level operations on Blender objects beyond basic mesh creation:
-- Object selection/focus
-- Scene save/load
-- Render output
-- Collections (grouping)
-- Batch operations
-- Material/node editor operations
-
-This module is ADDITIVE — it does not modify existing code.
-Import and use alongside the existing server.py tools.
-
-Usage:
-    from blender_mcp.advanced_objects import AdvancedObjectOperations
-
-    ops = AdvancedObjectOperations()
-    ops.save_scene(filepath="/path/to/file.blend")
-    ops.create_collection("Foreground")
-"""
+#================================================================
+#  ================================================================
+#  advanced_objects.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Advanced object operations — mesh, curve, shape key, particle, volume and modifier manipulation via bpy
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional

@@ -1,12 +1,24 @@
-"""
-阶段1 - 测试5: 真实导入导出验证
-Blender 5.1.2 真实导出和重新导入，验证数据一致性。
-
-测试:
-- 导出 Cube 为 FBX/OBJ/GLB/STL/BLEND
-- 重新导入
-- 验证顶点数、面数、对象数一致
-"""
+#================================================================
+#  ================================================================
+#  test5_import_export.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import bpy
 import sys

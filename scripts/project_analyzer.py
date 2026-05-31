@@ -1,10 +1,24 @@
-"""
-Blender-MCP Comprehensive Project Analyzer v2
-
-Scans all src/blender_mcp modules for interface completeness,
-dependency analysis, Python compatibility, and redundancy detection.
-Produces: blender_mcp_analysis.json, docs/API_DOCUMENTATION.md
-"""
+#================================================================
+#  ================================================================
+#  project_analyzer.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import ast
 import json

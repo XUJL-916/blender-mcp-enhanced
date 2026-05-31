@@ -1,8 +1,24 @@
-"""
-Phase 2: MCP Communication End-to-End Test
-Tests Hermes -> MCP Server -> Blender Addon -> Response pipeline
-Uses raw TCP to simulate MCP tool calls without actual Hermes.
-"""
+#================================================================
+#  ================================================================
+#  test6_mcp_communication.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      [File purpose description]
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import socket
 import json

@@ -1,19 +1,24 @@
-"""
-Blender Connection Recovery Module
-
-Provides automatic reconnection, health checks, and circuit breaker
-patterns for the TCP connection to the Blender addon.
-
-This module is ADDITIVE — it does not modify existing code.
-Import and use alongside the existing BlenderConnection class.
-
-Usage:
-    from blender_mcp.connection_recovery import BlenderConnectionManager
-
-    manager = BlenderConnectionManager(host="localhost", port=9876)
-    result = await manager.execute("get_scene_info", {})
-    manager.close()
-"""
+#================================================================
+#  ================================================================
+#  connection_recovery.py
+#  ================================================================
+#
+#  Copyright (c) 2026  XUJL
+#  Affiliation:  Shenzhen University (SZU)
+#
+#  Project:        Blender-MCP Enhanced (v1.5.5-enh)
+#  Repository:     https://github.com/XUJL-916/blender-mcp-enhanced
+#  Created:        2026
+#  License:        MIT
+#
+#  Description:
+#      Connection recovery — circuit breaker pattern, auto-reconnect and health check mechanism
+#
+#  This software is released under the MIT License.
+#  See LICENSE file in the project root for full terms.
+#
+#  ================================================================
+#================================================================
 
 import asyncio
 import json
