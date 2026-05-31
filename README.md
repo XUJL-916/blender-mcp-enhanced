@@ -21,6 +21,14 @@ Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blende
 
 ---
 
+### 🖼️ 演示
+
+![Blender-MCP 演示场景](assets/demo_scene.png)
+
+_上图：由 Blender-MCP 自动创建的 3D 场景 — 三点布光、Principled BSDF 材质、EEVEE 引擎渲染_
+
+---
+
 ## 🏗️ 架构概览
 
 ```
