@@ -1,0 +1,48 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "hermes-agent",
+  "elements": [
+    { "type": "rectangle", "id": "bg", "x": -4000, "y": -3000, "width": 10000, "height": 7500, "backgroundColor": "#0f172a", "fillStyle": "solid", "strokeColor": "transparent", "strokeWidth": 0 },
+
+    { "type": "text", "id": "title", "x": -180, "y": -280, "width": 360, "height": 40, "text": "Usage Flow", "fontSize": 28, "fontFamily": 1, "strokeColor": "#e5e5e5", "originalText": "Usage Flow", "autoResize": true },
+
+    { "type": "text", "id": "step1_label", "x": -380, "y": -220, "width": 80, "height": 16, "text": "Step 1", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 1", "autoResize": true },
+    { "type": "rectangle", "id": "step1", "x": -290, "y": -230, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#1e3a5f", "fillStyle": "solid", "strokeColor": "#4a9eed", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step1", "x": -275, "y": -210, "width": 210, "height": 20, "text": "Install & Configure (uv, addon)", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step1", "originalText": "Install & Configure (uv, addon)", "autoResize": true },
+
+    { "type": "arrow", "id": "a1", "x": -170, "y": -200, "width": 100, "height": 0, "points": [[0,0],[100,0]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "roughness": 1 },
+
+    { "type": "text", "id": "step2_label", "x": -380, "y": -130, "width": 80, "height": 16, "text": "Step 2", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 2", "autoResize": true },
+    { "type": "rectangle", "id": "step2", "x": -290, "y": -140, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#1a4d2e", "fillStyle": "solid", "strokeColor": "#22c55e", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step2", "x": -275, "y": -120, "width": 210, "height": 20, "text": "Launch MCP Server (uvx blender-mcp)", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step2", "originalText": "Launch MCP Server (uvx blender-mcp)", "autoResize": true },
+
+    { "type": "arrow", "id": "a2", "x": -170, "y": -120, "width": 100, "height": 0, "points": [[0,0],[100,0]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "roughness": 1 },
+
+    { "type": "text", "id": "step3_label", "x": -380, "y": -40, "width": 80, "height": 16, "text": "Step 3", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 3", "autoResize": true },
+    { "type": "rectangle", "id": "step3", "x": -290, "y": -50, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#2d1b69", "fillStyle": "solid", "strokeColor": "#8b5cf6", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step3", "x": -275, "y": -30, "width": 210, "height": 20, "text": "Connect in Blender (N Sidebar)", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step3", "originalText": "Connect in Blender (N Sidebar)", "autoResize": true },
+
+    { "type": "arrow", "id": "a3", "x": -170, "y": -30, "width": 100, "height": 0, "points": [[0,0],[100,0]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "roughness": 1 },
+
+    { "type": "text", "id": "step4_label", "x": -380, "y": 50, "width": 80, "height": 16, "text": "Step 4", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 4", "autoResize": true },
+    { "type": "rectangle", "id": "step4", "x": -290, "y": 40, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#1a4d4d", "fillStyle": "solid", "strokeColor": "#22d3ee", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step4", "x": -275, "y": 60, "width": 210, "height": 20, "text": "Send Natural Language Commands", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step4", "originalText": "Send Natural Language Commands", "autoResize": true },
+
+    { "type": "arrow", "id": "a4", "x": -170, "y": 60, "width": 100, "height": 0, "points": [[0,0],[100,0]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "roughness": 1 },
+
+    { "type": "text", "id": "step5_label", "x": -380, "y": 140, "width": 80, "height": 16, "text": "Step 5", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 5", "autoResize": true },
+    { "type": "rectangle", "id": "step5", "x": -290, "y": 130, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#5c3d1a", "fillStyle": "solid", "strokeColor": "#fbbf24", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step5", "x": -275, "y": 150, "width": 210, "height": 20, "text": "AI Creates 3D Scene Automatically", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step5", "originalText": "AI Creates 3D Scene Automatically", "autoResize": true },
+
+    { "type": "arrow", "id": "a5", "x": -170, "y": 150, "width": 100, "height": 0, "points": [[0,0],[100,0]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "roughness": 1 },
+
+    { "type": "text", "id": "step6_label", "x": -380, "y": 230, "width": 80, "height": 16, "text": "Step 6", "fontSize": 14, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "Step 6", "autoResize": true },
+    { "type": "rectangle", "id": "step6", "x": -290, "y": 220, "width": 240, "height": 60, "roundness": { "type": 3 }, "backgroundColor": "#1a4d2e", "fillStyle": "solid", "strokeColor": "#22c55e", "strokeWidth": 2 },
+    { "type": "text", "id": "t_step6", "x": -275, "y": 240, "width": 210, "height": 20, "text": "Render & Export (GLB/FBX/PNG)", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "step6", "originalText": "Render & Export (GLB/FBX/PNG)", "autoResize": true },
+
+    { "type": "rectangle", "id": "feedback_loop", "x": 50, "y": -230, "width": 160, "height": 500, "roundness": { "type": 3 }, "backgroundColor": "#0f172a", "fillStyle": "solid", "strokeColor": "#4a9eed", "strokeWidth": 1, "strokeStyle": "dashed", "opacity": 50 },
+    { "type": "text", "id": "t_feedback", "x": 60, "y": 20, "width": 140, "height": 20, "text": "Continuous\nInteractive\nLoop", "fontSize": 16, "fontFamily": 1, "strokeColor": "#4a9eed", "originalText": "Continuous\nInteractive\nLoop", "autoResize": true }
+  ],
+  "appState": { "viewBackgroundColor": "#0f172a" }
+}

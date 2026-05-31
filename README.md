@@ -4,18 +4,24 @@
 
 ---
 
-## 概述
+## 🚀 概述
 
 Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blender-mcp) 开源项目 **blender-mcp** 基础上开发的完整增强版本。在保留原始 MCP 协议桥接能力的前提下，本项目对配置管理、连接可靠性、高级对象操作、渲染自动化、资产导入/导出、场景快照以及测试覆盖等核心领域进行了系统性扩展和重构。
 
 本项目定位为 **Blender 与 Hermes/Claude AI 之间的中介插件** — 通过 Model Context Protocol (MCP) 将 AI 代理与 Blender 的 bpy API 解耦，使 AI 代理（如 Claude、Hermes Agent）能够通过标准化的 MCP 工具协议，在 Blender 中完成从场景搭建、材质编辑、动画制作到渲染输出的完整 3D 创作流程自动化。
 
-- **原始项目**: https://github.com/ahujasid/blender-mcp
-- **增强版本**: 本仓库 (1.5.5-enh)
+### 🔗 快速链接
+
+| 资源 | 链接 |
+|------|------|
+| 原始项目 | [ahujasid/blender-mcp](https://github.com/ahujasid/blender-mcp) |
+| 本仓库 | 本仓库 (1.5.5-enh) |
+| 📐 架构流程图 | [Excalidraw — Architecture](https://excalidraw.com/#json=zIvTDiyrpYaAK85fSsdr0,odzXSNVxzsSV9nPW26Aw0Q) |
+| 🔄 使用流程图 | [Excalidraw — Usage Flow](https://excalidraw.com/#json=PE0XOJtDUczYBDY7aH__s,S_pb4fqdOhm-9KJS6RSxuw) |
 
 ---
 
-## 架构概览
+## 🏗️ 架构概览
 
 ```
 [AI Client: Claude / Cursor / VS Code / Hermes Agent]
@@ -32,9 +38,11 @@ Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blende
 
 **两层通信**: MCP 层 (stdio) 与 TCP 层 (JSON) 解耦，AI 客户端不直接操作 Blender。
 
+📊 [查看交互式架构图 →](https://excalidraw.com/#json=zIvTDiyrpYaAK85fSsdr0,odzXSNVxzsSV9nPW26Aw0Q)
+
 ---
 
-## 核心功能模块
+## ✨ 核心功能模块
 
 | # | 模块 | 方法数 | 状态 |
 |---|------|--------|------|
@@ -50,7 +58,7 @@ Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blende
 
 ---
 
-## 快速开始
+## 🚀 快速开始
 
 ### 前置要求
 
@@ -102,9 +110,11 @@ uvx blender-mcp
 
 ---
 
-## 如何使用
+## 📖 如何使用
 
 ### 一、完整使用流程（从零开始）
+
+📊 [查看交互式使用流程图 →](https://excalidraw.com/#json=PE0XOJtDUczYBDY7aH__s,S_pb4fqdOhm-9KJS6RSxuw)
 
 ```
 第 1 步: 安装 uv 包管理器          → 一行命令搞定
@@ -299,7 +309,7 @@ export DISABLE_TELEMETRY=true
 
 ---
 
-## 测试状态
+## ✅ 测试状态
 
 | 类别 | 测试数 | 通过 | 失败 | 跳过 |
 |------|--------|------|------|------|
@@ -320,7 +330,7 @@ powershell scripts/run_all_tests.ps1
 
 ---
 
-## 文档导航
+## 📚 文档导航
 
 | 文档 | 说明 |
 |------|------|
@@ -334,7 +344,7 @@ powershell scripts/run_all_tests.ps1
 
 ---
 
-## 安全说明
+## 🔒 安全说明
 
 - `execute_blender_code` 允许执行任意 Python 代码，生产环境请谨慎使用
 - Poly Haven 集成会下载模型文件，可在 Blender Addon 中关闭
@@ -342,12 +352,12 @@ powershell scripts/run_all_tests.ps1
 
 ---
 
-## 许可证
+## 📜 许可证
 
 本项目基于原始 blender-mcp 项目 (MIT 许可证) 扩展开发。原始项目由 [Siddharth Ahuja](https://x.com/sidahuj) 创建。
 
 ---
 
-## 免责声明
+## ⚠️ 免责声明
 
 本项目为第三方集成，与 Blender 官方无关联。

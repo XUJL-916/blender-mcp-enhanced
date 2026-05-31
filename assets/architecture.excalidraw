@@ -1,0 +1,45 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "hermes-agent",
+  "elements": [
+    { "type": "rectangle", "id": "bg", "x": -4000, "y": -3000, "width": 10000, "height": 7500, "backgroundColor": "#0f172a", "fillStyle": "solid", "strokeColor": "transparent", "strokeWidth": 0 },
+
+    { "type": "text", "id": "title", "x": -120, "y": -260, "width": 240, "height": 40, "text": "Blender-MCP Architecture", "fontSize": 28, "fontFamily": 1, "strokeColor": "#e5e5e5", "originalText": "Blender-MCP Architecture", "autoResize": true },
+
+    { "type": "rectangle", "id": "ai_zone", "x": -350, "y": -180, "width": 700, "height": 120, "backgroundColor": "#1e293b", "fillStyle": "solid", "strokeColor": "#f59e0b", "strokeWidth": 2, "strokeStyle": "dashed", "roughness": 1, "opacity": 100 },
+    { "type": "text", "id": "t_ai_zone", "x": -340, "y": -170, "width": 220, "height": 20, "text": "AI Client Layer", "fontSize": 16, "fontFamily": 1, "strokeColor": "#f59e0b", "originalText": "AI Client Layer", "autoResize": true },
+
+    { "type": "rectangle", "id": "ai_claude", "x": -280, "y": -130, "width": 160, "height": 50, "roundness": { "type": 3 }, "backgroundColor": "#1e3a5f", "fillStyle": "solid", "strokeColor": "#4a9eed", "strokeWidth": 2 },
+    { "type": "text", "id": "t_ai_claude", "x": -272, "y": -115, "width": 144, "height": 20, "text": "Claude / Cursor", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "ai_claude", "originalText": "Claude / Cursor", "autoResize": true },
+
+    { "type": "rectangle", "id": "ai_hermes", "x": 0, "y": -130, "width": 160, "height": 50, "roundness": { "type": 3 }, "backgroundColor": "#1e3a5f", "fillStyle": "solid", "strokeColor": "#4a9eed", "strokeWidth": 2 },
+    { "type": "text", "id": "t_ai_hermes", "x": -92, "y": -115, "width": 144, "height": 20, "text": "Hermes Agent", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "ai_hermes", "originalText": "Hermes Agent", "autoResize": true },
+
+    { "type": "rectangle", "id": "ai_vscode", "x": 280, "y": -130, "width": 160, "height": 50, "roundness": { "type": 3 }, "backgroundColor": "#1e3a5f", "fillStyle": "solid", "strokeColor": "#4a9eed", "strokeWidth": 2 },
+    { "type": "text", "id": "t_ai_vscode", "x": 288, "y": -115, "width": 144, "height": 20, "text": "VS Code / Others", "fontSize": 16, "fontFamily": 1, "strokeColor": "#e5e5e5", "textAlign": "center", "verticalAlign": "middle", "containerId": "ai_vscode", "originalText": "VS Code / Others", "autoResize": true },
+
+    { "type": "arrow", "id": "arrow1", "x": -200, "y": -80, "width": 200, "height": 0, "points": [[0,0],[0,60]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "strokeStyle": "dashed", "roughness": 1 },
+    { "type": "text", "id": "t_arrow1", "x": -100, "y": -55, "width": 100, "height": 16, "text": "MCP (stdio)", "fontSize": 14, "fontFamily": 1, "strokeColor": "#a0a0a0", "originalText": "MCP (stdio)", "autoResize": true },
+
+    { "type": "rectangle", "id": "mcp_server", "x": -200, "y": 20, "width": 400, "height": 100, "roundness": { "type": 3 }, "backgroundColor": "#1a4d2e", "fillStyle": "solid", "strokeColor": "#22c55e", "strokeWidth": 2 },
+    { "type": "text", "id": "t_mcp_title", "x": -185, "y": 35, "width": 160, "height": 20, "text": "MCP Server Layer", "fontSize": 18, "fontFamily": 1, "strokeColor": "#22c55e", "originalText": "MCP Server Layer", "autoResize": true },
+    { "type": "text", "id": "t_mcp_detail", "x": -185, "y": 60, "width": 370, "height": 20, "text": "src/blender_mcp/server.py — FastMCP (31 tools)", "fontSize": 14, "fontFamily": 1, "strokeColor": "#e5e5e5", "originalText": "src/blender_mcp/server.py — FastMCP (31 tools)", "autoResize": true },
+
+    { "type": "arrow", "id": "arrow2", "x": 0, "y": 120, "width": 200, "height": 0, "points": [[0,0],[0,60]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "strokeStyle": "dashed", "roughness": 1 },
+    { "type": "text", "id": "t_arrow2", "x": 100, "y": 145, "width": 100, "height": 16, "text": "TCP JSON", "fontSize": 14, "fontFamily": 1, "strokeColor": "#a0a0a0", "originalText": "TCP JSON", "autoResize": true },
+
+    { "type": "rectangle", "id": "addon", "x": -200, "y": 240, "width": 400, "height": 120, "roundness": { "type": 3 }, "backgroundColor": "#2d1b69", "fillStyle": "solid", "strokeColor": "#8b5cf6", "strokeWidth": 2 },
+    { "type": "text", "id": "t_addon_title", "x": -185, "y": 255, "width": 160, "height": 20, "text": "Blender Addon Layer", "fontSize": 18, "fontFamily": 1, "strokeColor": "#8b5cf6", "originalText": "Blender Addon Layer", "autoResize": true },
+    { "type": "text", "id": "t_addon_detail", "x": -185, "y": 280, "width": 370, "height": 20, "text": "addon.py — bpy API execution via TCP", "fontSize": 14, "fontFamily": 1, "strokeColor": "#e5e5e5", "originalText": "addon.py — bpy API execution via TCP", "autoResize": true },
+    { "type": "text", "id": "t_addon_detail2", "x": -185, "y": 305, "width": 370, "height": 20, "text": "50+ methods | Materials | Animation | Rendering", "fontSize": 14, "fontFamily": 1, "strokeColor": "#a0a0a0", "originalText": "50+ methods | Materials | Animation | Rendering", "autoResize": true },
+
+    { "type": "arrow", "id": "arrow3", "x": 0, "y": 360, "width": 200, "height": 0, "points": [[0,0],[0,60]], "endArrowhead": "arrow", "strokeColor": "#a0a0a0", "strokeStyle": "dashed", "roughness": 1 },
+    { "type": "text", "id": "t_arrow3", "x": 100, "y": 385, "width": 100, "height": 16, "text": "bpy API", "fontSize": 14, "fontFamily": 1, "strokeColor": "#a0a0a0", "originalText": "bpy API", "autoResize": true },
+
+    { "type": "rectangle", "id": "blender", "x": -200, "y": 480, "width": 400, "height": 100, "roundness": { "type": 3 }, "backgroundColor": "#1a4d4d", "fillStyle": "solid", "strokeColor": "#22d3ee", "strokeWidth": 2 },
+    { "type": "text", "id": "t_blender_title", "x": -185, "y": 500, "width": 160, "height": 20, "text": "Blender 5.1.2 Engine", "fontSize": 18, "fontFamily": 1, "strokeColor": "#22d3ee", "originalText": "Blender 5.1.2 Engine", "autoResize": true },
+    { "type": "text", "id": "t_blender_detail", "x": -185, "y": 530, "width": 370, "height": 20, "text": "Cycles / Eevee • Materials • Mesh • Animation • Render", "fontSize": 14, "fontFamily": 1, "strokeColor": "#e5e5e5", "originalText": "Cycles / Eevee • Materials • Mesh • Animation • Render", "autoResize": true }
+  ],
+  "appState": { "viewBackgroundColor": "#0f172a" }
+}
