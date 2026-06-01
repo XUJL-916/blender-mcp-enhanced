@@ -1,139 +1,144 @@
 # Blender-MCP Enhanced
 
-> **版本**: 1.5.5-enh | **迭代日期**: 2026-06-01 | **Target**: Blender 5.1.2 | **Python**: 3.13 | **作者**: XUJL | Shenzhen University (SZU)
+> **版本**: 1.5.5-enh | **迭代日期**: 2026-06-01 | **目标环境**: Blender 5.1.2 / Python 3.13 | **作者**: XUJL | Shenzhen University (SZU)
 
 ---
 
-<!-- Logo -->
-<p align="center">
-  <img src="assets/logo.svg" alt="Blender-MCP Enhanced Logo" width="700">
-</p>
+## 概述
 
-<p align="center">
-  <a href="https://github.com/XUJL-916/blender-mcp-enhanced">
-    <img src="https://img.shields.io/github/v/release/XUJL-916/blender-mcp-enhanced?style=flat-square&color=22d3ee" alt="Version">
-  </a>
-  <a href="https://github.com/XUJL-916/blender-mcp-enhanced/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
-  </a>
-  <a href="https://github.com/XUJL-916/blender-mcp-enhanced/stargazers">
-    <img src="https://img.shields.io/github/stars/XUJL-916/blender-mcp-enhanced?style=flat-square&color=f59e0b" alt="Stars">
-  </a>
-  <a href="https://github.com/XUJL-916/blender-mcp-enhanced/pulse">
-    <img src="https://img.shields.io/github/commit-activity/m/XUJL-916/blender-mcp-enhanced?style=flat-square&color=8b5cf6" alt="Commits">
-  </a>
-</p>
+Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blender-mcp) 开源项目 **blender-mcp** 基础上开发的完整增强版本。本项目对原始设计进行了系统性扩展与重构，将其从概念验证提升为生产级可用的 AI + Blender 自动化框架。
+
+**核心目标**：作为 Blender 与 Hermes/Claude AI 之间的桥接中介插件，通过 Model Context Protocol (MCP) 将 AI 代理与 Blender 的 bpy API 完全解耦，实现从场景搭建、材质/节点编辑、动画关键帧、渲染出图到数据导入导出的全流程自动化控制。
 
 ---
 
-## 🚀 概述
+## 核心功能模块
 
-Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blender-mcp) 开源项目 **blender-mcp** 基础上开发的完整增强版本。在保留原始 MCP 协议桥接能力的前提下，本项目对配置管理、连接可靠性、高级对象操作、渲染自动化、资产导入/导出、场景快照以及测试覆盖等核心领域进行了系统性扩展和重构。
+### 1. 高级对象操作
+- 创建/删除/变换所有基础几何体（Mesh、Curve、Light、Camera 等）
+- 批量操作：批量着色、批量缩放/旋转、批量复制、批量分组
+- 对象查询与场景状态获取（JSON 结构化输出）
 
-本项目定位为 **Blender 与 AI Agent（Hermes/Claude/Cursor/VSCoode）之间的中介插件** — 通过 Model Context Protocol (MCP) 将 AI 代理与 Blender 的 bpy API 解耦，使 AI 代理能够通过标准化的 MCP 工具协议，在 Blender 中完成从场景搭建、材质编辑、动画制作到渲染输出的完整 3D 创作流程自动化。
+### 2. 材质与节点编辑器
+- Principled BSDF 完整参数控制（Base Color/Metallic/Roughness/Clearcoat/Transmission）
+- 材质节点树创建：Image Texture、Procedural Texture、Color Ramp、Shader Mix、Emission
+- PBR 工作流支持：玻璃、金属、橡胶、塑料、珍珠等 10+ 材质预设
 
-| 维度 | 原始项目 | 本增强版 |
-|------|----------|----------|
-| MCP 工具数 | ~8 | **31**（覆盖创建、材质、动画、渲染、导入导出） |
-|| 连接可靠性 | 基础 TCP | **电路断路器 + 自动重连 + 心跳监测 + 健康检查** |
-|| 配置管理 | 无 | **完整配置模型 + 环境变量覆盖 + 密钥管理** |
-|| 测试覆盖 | 无 | **170+ 个单元测试 + 兼容性静态检查** |
-|| 兼容性适配 | Blender 3.x | **Blender 5.1.2 + 3.x 向后兼容** |
-|| 文档 | 基础 | **8 篇专业文档 + Release Checklist + 完整 API 文档** |
-|| AI 交互方式 | 仅 `execute_blender_code`（需写 bpy 代码） | **47 个结构化 + 语义化工具，Agent 只调用工具不写代码** |
-|| 错误恢复 | 无 | **自动重连 + 超时检测 + 状态恢复** |
-|| 运行监控 | 无 | **内置健康检查端点 + 心跳 + 遥测** |
+### 3. 动画与关键帧
+- FBX / OBJ / GLB / STL / BLEND 格式导入导出
+- 动画数据 CSV 导入导出
+- 关键帧插入与动画数据获取（stub 层已实现）
 
----
+### 4. 渲染与场景快照
+- Eevee / Cycles 渲染引擎切换
+- 多视角渲染、360 全景渲染、批量渲染
+- 视口截图、相机视角截图、场景快照捕获
+- 渲染分辨率/质量参数配置
 
-## 🆚 为什么选择 Blender-MCP-Enhanced？
+### 5. 数据导入/导出
+- 支持格式：FBX, OBJ, GLB, STL, BLEND, CSV
+- 外部资产集成：PolyHaven（HDR/纹理/模型）、Sketchfab（3D 模型）、Hyper3D Rodin（文本/图片生 3D）、Hunyuan3D（腾讯文心 3D 生成）
 
-**30 秒看懂：你需要一个能"说人话"的 Blender 控制接口，而不是一个让你写 Python 脚本的调试器。**
-
-### 核心优势
-
-1. **47 个 AI 友好的工具，而非 1 个代码执行器**
-   - 原始项目只有 `execute_blender_code` — 让 AI 直接写 bpy 代码
-   - 增强版提供 **47 个结构化工具**：`create_cube()`、`create_material()`、`render_scene()` 等
-   - Agent 调用的是 `{"tool": "create_cube", "size": 2}`，不是 `bpy.ops.mesh.primitive_cube_add()`
-   - 向后兼容：`execute_blender_code` 仍在，随时可降级使用
-
-2. **自动重连，不怕 Blender 崩溃**
-   - 电路断路器模式：5 次失败后自动暂停，30 秒后重试
-   - 背景心跳：每 30 秒探测一次 Blender 连接状态
-   - 连接断开时自动恢复，不需要手动重启
-
-3. **Blender 5.1.2 原生适配**
-   - 解决了 5.1.2 的 Breaking Changes：`render_samples` → `taa_render_samples`
-   - 材质系统使用 `mat.use_nodes = True` + `ShaderNodeBsdfPrincipled` 显式节点构建
-   - 集合体 API：`bpy.context.collection.objects.link` → `scene.collection.objects.link`
-   - 渲染输出自动定位到用户目录
-
-4. **完整的外部资产集成**
-   - PolyHaven：HDRIs、纹理、模型一键下载
-   - Sketchfab：搜索、预览、下载 3D 模型
-   - Hyper3D Rodin：文本/图片生成 3D 模型
-   - Hunyuan3D：腾讯文心 3D 生成，支持 API/本地模式
-   - 智能资产推荐策略：AI 自动选择最佳来源
-
-5. **生产级工程保障**
-   - 170+ 单元测试，覆盖率持续提高
-   - GitHub Actions CI：每次提交自动 lint + 测试
-   - Release Checklist：提交前 47 项强制检查
-   - 所有 Python 文件包含 XUJL/SZU 专业版权头
-
-6. **开箱即用的工作流**
-   - 从 Blender 3.x 到 5.1.2 平滑迁移
-   - 5 分钟内完成首次 AI 调用
-   - 支持 Claude Desktop、Cursor、VS Code、Hermes Agent 等客户端
-
-### 典型使用场景
-
-| 场景 | 原始项目 | 增强版 |
-|------|----------|--------|
-| 创建场景 | 写 bpy 脚本 | `"创建 3 个立方体"` |
-| 布光 | 手动设置灯光参数 | `create_light(type="SUN", energy=5)` |
-| 材质 | 手动编辑节点树 | `create_material(color=[1,0,0], metallic=0.9)` |
-| 渲染 | 设置渲染属性 | `render_scene(engine="EEVEE")` |
-| 导入模型 | 编写导入脚本 | `import_model("/path/to/model.glb")` |
-| 连接断开 | 手动重启 | 自动重连 |
-| 监控状态 | 查看日志 | `health_check()` 一键获取 |
-| 资产搜索 | 手动下载 | `search_polyhaven_assets("furniture")` |
-
-**一句话总结**：原始项目给你一个"Python 解释器"，增强版给你一个"3D 创作工作台"。
+### 6. 连接可靠性
+- 电路断路器模式（CLOSED -> OPEN -> HALF_OPEN）
+- 自动重连 + 指数退避
+- 心跳检测 + 健康检查端点
 
 ---
 
-## 📸 演示
+## 架构概览
 
-### 对象创建与场景搭建
-![对象创建](assets/readme_feature_1_object_creation.png)
-_多类型几何体（Torus、Icosphere、Cubes、Cylinder）— Principled BSDF 材质、三点布光、EEVEE 渲染_
+```
+[AI Client: Claude / Cursor / VS Code / Hermes Agent]
+           │  MCP (stdio, uvx blender-mcp)
+           ▼
+[src/blender_mcp/server.py]     ← FastMCP 工具定义层 (31 tools)
+           │  TCP Socket (JSON, localhost:9876)
+           ▼
+[addon.py]                       ← Blender 内部插件层 (~3043 行)
+           │  bpy API
+           ▼
+[Blender 5.1.2 场景引擎]
+```
 
-### PBR 材质系统
-![材质系统](assets/readme_feature_2_material_system.png)
-_Glossy / Metallic / Rubber / Glass / Plastic — 完整的 Physically Based Rendering 演示_
-
-### 动画关键帧
-![动画系统](assets/readme_feature_3_animation.png)
-_轨道运动系统 — 4 颗行星绕中心球体旋转，关键帧驱动 FCurves_
-
-### 系统架构
-![架构可视化](assets/readme_feature_4_architecture.png)
-_AI Client → MCP Server → Blender Addon → BPy API → Blender Engine 五层架构_
+**两层通信设计**：MCP 层 (stdio) 与 TCP 层 (JSON) 解耦，AI 客户端不直接操作 Blender。Agent 仅调用结构化工具，由 Server 内部映射至 bpy 或 TCP 指令。
 
 ---
 
-## ⚡ 快速开始
+## 演示场景
 
-**3 分钟安装 + 5 分钟第一次运行**
+### 科幻城市霓虹灯
+自动生成未来主义城市景观，包含发光建筑、霓虹窗条、霓虹标牌、反光地面。
+![Neon City](demo_outputs/neon_city.png)
+_10 栋建筑 / 霓虹材质 / Eevee 渲染 / 1920x1080 / 1.5 秒_
+
+### 机械臂关节结构
+展示复杂层级建模、金属材质与机械关节细节，适合工业可视化。
+![Robotic Arm](demo_outputs/robotic_arm.png)
+_基座+关节+臂段+末端执行器 / 工作室布光 / 1.2 秒_
+
+### 产品级布光渲染
+专业 3 点布光 + 多种材质演示（高光/哑光/金属/橡胶/珍珠/玻璃），适用于产品目录。
+![Product Shots](demo_outputs/product_shots.png)
+_5 种材质球 + 玻璃瓶 + 金属罐 / 45mm 镜头 / 1.8 秒_
+
+---
+
+## Hermes 完整控制流程
+
+```
+用户指令 → Hermes Agent (终端)
+    │
+    ├─ 启动 MCP 服务: uvx blender-mcp
+    ├─ 连接 Blender (TCP localhost:9876)
+    │
+    ▼
+[工具调用] create_cube() / create_material() / render_scene()
+    │
+    ▼
+Blender 场景更新 → 渲染输出 → 截图/文件返回
+```
+
+Hermes Agent 通过 `terminal` 工具直接管理 Blender MCP 生命周期，通过 MCP 协议发送结构化指令，实现"一句话 → 一个场景"的自动化工作流。
+
+---
+
+## 单元测试覆盖
+
+| 类别 | 测试数 | 通过 | 失败 | 跳过 |
+|------|--------|------|------|------|
+| 配置模块 | 20 | 20 | 0 | 0 |
+| 连接恢复 | 25 | 23 | 0 | 2* |
+| 高级对象操作 | 50 | 50 | 0 | 0 |
+| 批量/渲染/导入导出 | 62 | 62 | 0 | 0 |
+| **合计** | **157** | **155** | **0** | **2** |
+
+\* 跳过的 2 个集成测试需要运行中的 Blender 实例
+
+---
+
+## 迭代记录与项目状态
+
+完整开发迭代记录、功能状态追踪、已知问题与后续规划参见：
+
+- [PROJECT_STATUS.md](PROJECT_STATUS.md) — 开发迭代记录与功能状态（实时更新）
+- [docs/USER_GUIDE.md](docs/USER_GUIDE.md) — 用户安装、配置、启动指南
+- [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) — 架构、模块、扩展、测试
+- [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) — 完整 API 文档
+- [docs/ACCEPTANCE_TEST_PLAN.md](docs/ACCEPTANCE_TEST_PLAN.md) — 验收测试计划
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — 常见问题与故障排除
+- [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) — 发布前检查清单
+
+---
+
+## 快速开始
 
 ### 前置要求
 
-- **Blender 5.1.2**（推荐）或 4.x — [下载](https://www.blender.org/download/)
-- **uv** 包管理器 — [安装指南](https://docs.astral.sh/uv/getting-started/installation/)
+- **Blender 5.1.2**（推荐）或 4.x
+- **uv** 包管理器
 - Python 3.10+（Blender 内置）
-- Git（可选，用于克隆仓库）
+- Git（可选）
 
 ### 安装
 
@@ -147,217 +152,52 @@ uv venv
 
 # 3. 安装项目（Windows）
 uv pip install -p .venv/Scripts/python.exe -e .
-
-# macOS / Linux
-uv pip install -p .venv/bin/python -e .
 ```
 
-> **网络超时？** 使用国内镜像：
-> ```bash
-> uv pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple -e .
-> ```
-
-### 一键验证安装
+### 验证安装
 
 ```bash
-# 测试安装
-uv pip install -p .venv/Scripts/python.exe -e . && echo "OK: Project installed"
-
 # 运行单元测试
 python -m pytest tests/ -v
 
 # 运行兼容性检查
 python scripts/check_blender_512_compatibility.py
-
-# 一键全量测试（单元测试 + 兼容性 + 项目分析）
-powershell scripts/run_all_tests.ps1
 ```
 
 ---
 
-## 📖 使用指南
+## Blender 5.1.2 兼容性适配
 
-### 第一步：安装 Blender 插件
+本项目已完成 Blender 5.1.2 全量 API 适配，解决以下 Breaking Changes：
 
-1. 打开 Blender（推荐 5.1.2）
-2. **Edit > Preferences > Add-ons**
-3. 点击 **Install...** 按钮
-4. 选择项目根目录的 `addon.py`
-5. 搜索 **Blender-MCP**，勾选启用
-6. 关闭 Preferences（设置自动保存）
-
-> addon.py 约 2668 行，是 Blender 侧的核心插件，负责执行 3D 场景操作。
-
-### 第二步：启动 MCP 服务
-
-打开**新终端**，进入项目目录：
-
-```bash
-cd blender-mcp-enhanced
-uvx blender-mcp
-```
-
-看到 `Blender-MCP server running on localhost:9876` 表示启动成功。
-
-**重要**: MCP 服务必须与 Blender 同时运行，但请先启动 Blender 并加载插件，再启动 MCP 服务。
-
-### 第三步：在 Blender 中连接
-
-1. Blender 按 **N 键** 打开侧边栏
-2. 找到 **Blender-MCP** 标签页
-3. 点击 **Connect to Claude** 按钮
-4. 看到绿色状态提示 = 连接成功
-
-### 第四步：用 AI 客户端操作 Blender
-
-配置你的 AI 客户端（参见下方配置指南），然后通过自然语言指令操作 Blender。
-
-#### 常用操作示例
-
-```
-# 创建场景
-"创建 3 个立方体排成一行，中间加一个球体，设置三点布光"
-
-# 材质编辑
-"给所有物体创建金属材质，颜色为红色，粗糙度 0.3"
-
-# 渲染
-"使用 Eevee 引擎渲染当前场景，分辨率 1920x1080，输出到 D:/renders"
-
-# 导入导出
-"导入 D:/models/character.fbx，导出当前场景为 output.glb"
-```
+| 旧 API | 新 API | 说明 |
+|--------|--------|------|
+| `scene.eevee.radiance_max` | 已移除 | Eevee 不再需要此参数 |
+| `scene.render.image_format` | `scene.render.image_settings.file_format` | 渲染设置层级调整 |
+| `bsdf.inputs['Emission']` | `bsdf.inputs['Emission Color']` | Emission 拆分 |
+| `bsdf.inputs['Clearcoat']` | `bsdf.inputs['Coat Weight']` | Clearcoat 重命名为 Coat |
+| `bsdf.inputs['Transmission Roughness']` | 已移除 | 透明不再单独控制粗糙度 |
+| `light.data.distance` | 已移除 | 光源距离由场景尺度决定 |
+| `light.data.scale` | 已移除 | AREA 光源改用 size 参数 |
 
 ---
 
-## 🔧 AI 客户端配置
+## 代码统计
 
-### Claude Desktop
-
-编辑 `claude_desktop_config.json`：
-
-```json
-{
-    "mcpServers": {
-        "blender": {
-            "command": "uvx",
-            "args": ["blender-mcp"]
-        }
-    }
-}
-```
-
-- **Windows**: `C:\Users\admin\AppData\Local\Claude\claude_desktop_config.json`
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-### Hermes Agent
-
-在 Hermes Agent 会话中直接使用 `terminal` 工具：
-
-```bash
-# 启动 MCP 服务
-uvx blender-mcp
-```
-
-然后通过其他工具调用 Blender 操作。
-
-### VS Code / Cursor
-
-在 MCP 扩展配置中添加 server 配置，同上 JSON 格式。
+| 文件 | 行数 | 说明 |
+|------|------|------|
+| addon.py | ~3043 | Blender 插件层 |
+| server.py | 1207 | MCP 服务端 |
+| connection_recovery.py | 330 | 连接恢复模块 |
+| advanced_objects.py | ~1150 | 高级对象操作 API |
+| telemetry.py | 342 | 遥测模块 |
+| config_new.py | 221 | 配置管理模块 |
+| 测试文件 | 4 个 | 157 个测试用例 |
+| **总计** | **~6851 行** | **Python** |
 
 ---
 
-## 🏗️ 架构概览
-
-```
-[AI Client: Claude / Cursor / VS Code / Hermes Agent]
-           │  MCP (stdio, uvx blender-mcp)
-           ▼
-[src/blender_mcp/server.py]     ← FastMCP 工具定义层 (31 tools)
-           │  TCP Socket (JSON, localhost:9876)
-           ▼
-[addon.py]                       ← Blender 内部插件层 (2668 行)
-           │  bpy API
-           ▼
-[Blender 5.1.2 场景引擎]
-```
-
-**两层通信设计**: MCP 层 (stdio) 与 TCP 层 (JSON) 解耦，AI 客户端不直接操作 Blender。
-
-| 层 | 职责 | 关键技术 |
-|----|------|----------|
-| AI Client | 自然语言指令 | Claude API / Cursor MCP / Hermes Agent |
-| MCP Server | 工具定义与调度 | FastMCP, 31 个工具定义 |
-| TCP Bridge | 跨进程通信 | JSON-RPC over TCP, localhost:9876 |
-| Blender Addon | 场景操作执行 | bpy API, Eevee/Cycles 渲染 |
-| Blender Engine | 3D 渲染引擎 | bpy.data, mathutils, 节点编辑器 |
-
----
-
-## ✨ 核心功能模块
-
-| # | 模块 | 方法数 | 状态 |
-|---|------|--------|------|
-| 1 | **高级对象操作** (创建/变换/查询/批量) | 50+ | ✅ 已实现 |
-| 2 | **材质与节点编辑器** (Principled BSDF/纹理/节点树) | 30+ | ✅ 已实现 |
-| 3 | **动画与关键帧** (FBX/OBJ/GLB 导入导出) | 15+ | ✅ 已实现 |
-| 4 | **渲染与场景快照** (Eevee/Cycles/多视角) | 15+ | ✅ 已实现 |
-| 5 | **数据导入/导出** (FBX/OBJ/GLB/STL/Blend/CSV) | 13 | ✅ 已实现 |
-| 6 | **连接恢复机制** (电路断路器+自动重连) | 6 | ✅ 已实现 |
-| 7 | **外部资产集成** (PolyHaven/Sketchfab/Hyper3D/Hunyuan3D) | 15+ | ✅ 已实现 |
-
-**代码统计**: 约 6,851 行 Python，385 方法 / 64 函数 / 41 类。
-
----
-
-## ⚙️ 环境变量
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `BLENDER_HOST` | localhost | Socket 地址 |
-| `BLENDER_PORT` | 9876 | Socket 端口 |
-| `DISABLE_TELEMETRY` | (未设置) | 完全关闭遥测 |
-| `HYPER3D_API_KEY` | (未设置) | Hyper3D API 密钥 |
-| `HUNYUAN3D_SECRET_ID` | (未设置) | Hunyuan3D API 密钥 |
-
----
-
-## ✅ 测试状态
-
-| 类别 | 测试数 | 通过 | 失败 | 跳过 |
-|------|--------|------|------|------|
-| 单元测试 | 157 | 155 | 0 | 2 |
-| 兼容性检查 | 42 | 42 | 0 | 0 |
-
-```bash
-# 运行全部测试
-python -m pytest tests/ -v
-
-# 一键测试 (单元测试 + 兼容性 + 项目分析)
-powershell scripts/run_all_tests.ps1
-```
-
-**注意**: 2 个跳过测试（`test_connect_and_send_command`, `test_health_check`）需要运行中的 Blender 实例进行集成测试。
-
----
-
-## 📚 文档导航
-
-| 文档 | 说明 |
-|------|------|
-| [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | 用户安装、配置、启动指南 |
-| [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | 架构、模块、扩展、测试 |
-| [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | 完整 API 文档 (853 行) |
-| [docs/HERMES_USAGE_EXAMPLES.md](docs/HERMES_USAGE_EXAMPLES.md) | Hermes Agent 调用示例 |
-| [docs/ACCEPTANCE_TEST_PLAN.md](docs/ACCEPTANCE_TEST_PLAN.md) | 验收测试计划 |
-| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | 常见问题与故障排除 |
-| [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | 发布前检查清单 |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | 开发迭代记录与功能状态 |
-| [TERMS_AND_CONDITIONS.md](TERMS_AND_CONDITIONS.md) | 使用条款 |
-
----
-
-## 🔒 安全说明
+## 安全说明
 
 - `execute_blender_code` 允许执行任意 Python 代码，生产环境请谨慎使用
 - PolyHaven 集成会下载模型文件，可在 Blender Addon 中关闭
@@ -365,19 +205,13 @@ powershell scripts/run_all_tests.ps1
 
 ---
 
-## 📜 许可证
+## 许可证
 
 本项目基于原始 blender-mcp 项目 (MIT 许可证) 扩展开发。原始项目由 [Siddharth Ahuja](https://x.com/sidahuj) 创建。
 
 ---
 
-## ⚠️ 免责声明
-
-本项目为第三方集成，与 Blender 官方无关联。Blender® 是 Blender Foundation 的注册商标。
-
----
-
-## 🙏 致谢
+## 致谢
 
 - 原始项目: [ahujasid/blender-mcp](https://github.com/ahujasid/blender-mcp)
 - Model Context Protocol: [anthropics/mcp](https://github.com/anthropics/mcp)
