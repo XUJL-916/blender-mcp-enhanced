@@ -332,6 +332,22 @@ class BlenderMCPServer:
             "get_hyper3d_status": self.get_hyper3d_status,
             "get_sketchfab_status": self.get_sketchfab_status,
             "get_hunyuan3d_status": self.get_hunyuan3d_status,
+            # ─── Structured Tool Schema Handlers ───
+            "create_cube": self._create_cube,
+            "create_sphere": self._create_sphere,
+            "create_cylinder": self._create_cylinder,
+            "create_torus": self._create_torus,
+            "create_plane": self._create_plane,
+            "create_light": self._create_light,
+            "create_camera": self._create_camera,
+            "create_material": self._create_material,
+            "apply_material": self._apply_material,
+            "set_object_transform": self._set_object_transform,
+            "delete_object": self._delete_object,
+            "render_scene": self._render_scene,
+            "import_model": self._import_model,
+            "export_scene": self._export_scene,
+            "set_render_engine": self._set_render_engine,
         }
 
         # Add Polyhaven handlers only if enabled
@@ -554,7 +570,249 @@ class BlenderMCPServer:
         except Exception as e:
             raise Exception(f"Code execution error: {str(e)}")
 
+    # ================================================================
+    # Structured Tool Schema Handlers -- AI-safe, parameterized
+    # ================================================================
 
+    def _create_cube(self, name="Cube", size=2.0, location=(0, 0, 0), rotation=(0, 0, 0)):
+        """Create a cube mesh object."""
+        try:
+            bpy.ops.mesh.primitive_cube_add(size=size, location=location, rotation=rotation)
+            obj = bpy.context.active_object
+            obj.name = name
+            return {"status": "success", "name": name, "type": "MESH", "location": list(obj.location)}
+        except Exception as e:
+            raise Exception(f"Failed to create cube: {str(e)}")
+
+    def _create_sphere(self, name="Sphere", radius=1.0, segments=32, location=(0, 0, 0)):
+        """Create a UV sphere mesh object."""
+        try:
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=radius, segments=segments, ring_count=16, location=location)
+            obj = bpy.context.active_object
+            obj.name = name
+            return {"status": "success", "name": name, "type": "MESH", "radius": radius}
+        except Exception as e:
+            raise Exception(f"Failed to create sphere: {str(e)}")
+
+    def _create_cylinder(self, name="Cylinder", radius=1.0, depth=2.0, location=(0, 0, 0)):
+        """Create a cylinder mesh object."""
+        try:
+            bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=depth, location=location)
+            obj = bpy.context.active_object
+            obj.name = name
+            return {"status": "success", "name": name, "type": "MESH", "radius": radius, "depth": depth}
+        except Exception as e:
+            raise Exception(f"Failed to create cylinder: {str(e)}")
+
+    def _create_torus(self, name="Torus", major_radius=1.0, minor_radius=0.4, location=(0, 0, 0)):
+        """Create a torus (ring) mesh object."""
+        try:
+            bpy.ops.mesh.primitive_torus_add(major_radius=major_radius, minor_radius=minor_radius, location=location)
+            obj = bpy.context.active_object
+            obj.name = name
+            return {"status": "success", "name": name, "type": "MESH"}
+        except Exception as e:
+            raise Exception(f"Failed to create torus: {str(e)}")
+
+    def _create_plane(self, name="Plane", size=1.0, location=(0, 0, 0)):
+        """Create a plane mesh object (grid floor)."""
+        try:
+            bpy.ops.mesh.primitive_plane_add(size=size, location=location)
+            obj = bpy.context.active_object
+            obj.name = name
+            return {"status": "success", "name": name, "type": "MESH"}
+        except Exception as e:
+            raise Exception(f"Failed to create plane: {str(e)}")
+
+    def _create_light(self, name="Light", light_type="POINT", strength=10.0, location=(5, 5, 5)):
+        """Create a light source object."""
+        try:
+            light_data = bpy.data.lights.new(name=name, type=light_type)
+            light_obj = bpy.data.objects.new(name, light_data)
+            light_obj.location = location
+            light_obj.data.use_nodes = True
+            if light_type == "SUN":
+                light_obj.data.energy = 3.0
+            else:
+                light_obj.data.energy = strength
+            bpy.context.collection.objects.link(light_obj)
+            return {"status": "success", "name": name, "type": light_type, "strength": light_obj.data.energy}
+        except Exception as e:
+            raise Exception(f"Failed to create light: {str(e)}")
+
+    def _create_camera(self, name="Camera", location=(5, -5, 3), target=(0, 0, 0)):
+        """Create a camera object and set as scene camera."""
+        try:
+            cam_data = bpy.data.cameras.new(name=name + "_data")
+            cam_obj = bpy.data.objects.new(name, cam_data)
+            cam_obj.location = location
+            bpy.context.scene.camera = cam_obj
+            constraint = cam_obj.constraints.new(type='TRACK_TO')
+            constraint.target = bpy.context.scene
+            constraint.track_axis = 'TRACK_NEGATIVE_Z'
+            constraint.up_axis = 'UP_Y'
+            return {"status": "success", "name": name, "location": list(cam_obj.location)}
+        except Exception as e:
+            raise Exception(f"Failed to create camera: {str(e)}")
+
+    def _create_material(self, name="Material", base_color=(1.0, 0.0, 0.0, 1.0), metallic=0.0, roughness=0.5, transmission=0.0):
+        """Create a Principled BSDF material with PBR parameters."""
+        try:
+            mat = bpy.data.materials.new(name=name)
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+            nodes.clear()
+
+            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+            bsdf.name = 'Principled BSDF'
+            bsdf.inputs['Base Color'].default_value = base_color
+            bsdf.inputs['Metallic'].default_value = metallic
+            bsdf.inputs['Roughness'].default_value = roughness
+            bsdf.inputs['Transmission Weight'].default_value = transmission
+
+            output = nodes.new(type='ShaderNodeOutputMaterial')
+            output.location = (400, 0)
+            links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+
+            return {"status": "success", "name": name, "type": "MATERIAL"}
+        except Exception as e:
+            raise Exception(f"Failed to create material: {str(e)}")
+
+    def _apply_material(self, object_name, material_name):
+        """Apply a material to an object."""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                raise ValueError(f"Object not found: {object_name}")
+            mat = bpy.data.materials.get(material_name)
+            if not mat:
+                raise ValueError(f"Material not found: {material_name}")
+            if obj.material_slots:
+                obj.material_slots[0].material = mat
+            else:
+                obj.data.materials.append(mat)
+            return {"status": "success", "object": object_name, "material": material_name}
+        except Exception as e:
+            raise Exception(f"Failed to apply material: {str(e)}")
+
+    def _set_object_transform(self, object_name, location=None, rotation=None, scale=None):
+        """Set transform (location/rotation/scale) of an object."""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                raise ValueError(f"Object not found: {object_name}")
+            if location:
+                obj.location = tuple(location)
+            if rotation:
+                obj.rotation_euler = tuple(rotation)
+            if scale:
+                obj.scale = tuple(scale)
+            return {
+                "status": "success", "name": object_name,
+                "location": list(obj.location),
+                "rotation": list(obj.rotation_euler),
+                "scale": list(obj.scale)
+            }
+        except Exception as e:
+            raise Exception(f"Failed to set transform: {str(e)}")
+
+    def _delete_object(self, object_name):
+        """Delete an object from the scene."""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                raise ValueError(f"Object not found: {object_name}")
+            bpy.context.scene.collection.objects.unlink(obj)
+            bpy.data.objects.remove(obj)
+            return {"status": "success", "deleted": object_name}
+        except Exception as e:
+            raise Exception(f"Failed to delete object: {str(e)}")
+
+    def _render_scene(self, engine="CYCLES", resolution_x=1920, resolution_y=1080, samples=128, filepath=None):
+        """Render the current scene."""
+        try:
+            render = bpy.context.scene.render
+            render.resolution_x = resolution_x
+            render.resolution_y = resolution_y
+            render.resolution_percentage = 100
+            if engine == "CYCLES":
+                bpy.context.scene.cycles.samples = samples
+                bpy.context.scene.render.engine = 'CYCLES'
+            elif engine == "EEVEE":
+                bpy.context.scene.eevee.taa_render_samples = samples
+                bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+            if filepath:
+                render.filepath = filepath
+            bpy.ops.render.render(write_still=True)
+            return {
+                "status": "success", "engine": engine,
+                "resolution": f"{resolution_x}x{resolution_y}",
+                "output": filepath or render.filepath
+            }
+        except Exception as e:
+            raise Exception(f"Failed to render: {str(e)}")
+
+    def _import_model(self, filepath, link=True, set_active=True, force_load_textures=True):
+        """Import a 3D model from file (FBX, GLTF, OBJ, STL, etc.)."""
+        try:
+            ext = os.path.splitext(filepath)[1].lower()
+            if ext in ['.fbx']:
+                bpy.ops.import_scene.fbx(filepath=filepath)
+            elif ext in ['.gltf', '.glb']:
+                bpy.ops.import_scene.gltf(filepath=filepath)
+            elif ext in ['.obj']:
+                bpy.ops.import_scene.obj(filepath=filepath)
+            elif ext in ['.stl']:
+                bpy.ops.import_mesh.stl(filepath=filepath)
+            elif ext in ['.blend']:
+                with bpy.data.libraries.load(filepath, link=link) as (data_from, data_to):
+                    data_to.objects = [o for o in data_from.objects]
+                if link:
+                    for obj in data_to.objects:
+                        if obj:
+                            bpy.context.collection.objects.link(obj)
+            else:
+                raise ValueError(f"Unsupported file format: {ext}")
+            imported = [obj.name for obj in bpy.context.selected_objects]
+            return {"status": "success", "file": filepath, "imported_objects": imported}
+        except Exception as e:
+            raise Exception(f"Failed to import model: {str(e)}")
+
+    def _export_scene(self, filepath, format="GLTF", selected_only=False):
+        """Export the scene to file (GLTF, FBX, OBJ, etc.)."""
+        try:
+            ext = os.path.splitext(filepath)[1].lower()
+            if ext in ['.gltf', '.glb']:
+                bpy.ops.export_scene.gltf(
+                    filepath=filepath,
+                    export_format='GLB' if ext == '.glb' else 'GLTF_SEPARATE',
+                    export_selected=selected_only
+                )
+            elif ext in ['.fbx']:
+                bpy.ops.export_scene.fbx(filepath=filepath, use_selection=selected_only)
+            elif ext in ['.obj']:
+                bpy.ops.export_scene.obj(filepath=filepath, use_selection=selected_only)
+            else:
+                raise ValueError(f"Unsupported export format: {ext}")
+            return {"status": "success", "exported_to": filepath, "format": format}
+        except Exception as e:
+            raise Exception(f"Failed to export scene: {str(e)}")
+
+    def _set_render_engine(self, engine="CYCLES"):
+        """Switch the render engine (CYCLES or EEVEE)."""
+        try:
+            if engine.upper() == "CYCLES":
+                bpy.context.scene.render.engine = 'CYCLES'
+                bpy.context.scene.cycles.samples = 128
+            elif engine.upper() == "EEVEE":
+                bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+                bpy.context.scene.eevee.taa_render_samples = 128
+            else:
+                raise ValueError(f"Unknown render engine: {engine}")
+            return {"status": "success", "engine": engine}
+        except Exception as e:
+            raise Exception(f"Failed to set render engine: {str(e)}")
 
     def get_polyhaven_categories(self, asset_type):
         """Get categories for a specific asset type from Polyhaven"""

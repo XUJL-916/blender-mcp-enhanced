@@ -52,12 +52,15 @@ class CircuitBreaker:
         self.failure_count = 0
         self.current_state = CircuitState.CLOSED
 
-    def record_failure(self):
+    def record_failure(self, reason: str = ""):
         self.failure_count += 1
         self.last_failure_time = time.time()
         if self.failure_count >= self.failure_threshold:
             self.current_state = CircuitState.OPEN
-            logger.warning(f"Circuit breaker OPEN after {self.failure_count} failures")
+            msg = f"Circuit breaker OPEN after {self.failure_count} failures"
+            if reason:
+                msg += f" ({reason})"
+            logger.warning(msg)
 
     def can_execute(self) -> bool:
         if self.current_state == CircuitState.CLOSED:

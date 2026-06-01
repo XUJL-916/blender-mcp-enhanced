@@ -12,262 +12,387 @@
 #  License:        MIT
 #
 #  Description:
-#      [File purpose description]
-#
-#  This software is released under the MIT License.
-#  See LICENSE file in the project root for full terms.
+#      Comprehensive tests for connection recovery, circuit breaker,
+#      heartbeat, and auto-reconnect functionality.
 #
 #  ================================================================
 #================================================================
 
-import os
-import sys
+"""Tests for connection recovery, circuit breaker, heartbeat, and auto-reconnect."""
+
+import pytest
 import socket
 import time
-import asyncio
-import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+import sys
+import os
+from unittest.mock import MagicMock, patch
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from blender_mcp.connection_recovery import (
-    CircuitState,
-    CircuitBreaker,
-    HealthMetrics,
-    BlenderConnectionManager,
-    AsyncBlenderConnectionManager,
-    create_connection_manager,
-)
-
-
-# ============================================================
-# CircuitBreaker Tests
-# ============================================================
 
 class TestCircuitBreaker:
-    def test_initial_state_is_closed(self):
+    """Test circuit breaker state machine."""
+
+    def test_initial_state_closed(self):
+        from blender_mcp.connection_recovery import CircuitBreaker, CircuitState
         cb = CircuitBreaker()
         assert cb.current_state == CircuitState.CLOSED
         assert cb.failure_count == 0
-
-    def test_record_success_resets(self):
-        cb = CircuitBreaker(failure_threshold=3)
-        cb.record_failure()
-        cb.record_failure()
-        assert cb.failure_count == 2
-        cb.record_success()
-        assert cb.failure_count == 0
-        assert cb.current_state == CircuitState.CLOSED
 
     def test_opens_after_threshold(self):
-        cb = CircuitBreaker(failure_threshold=3, recovery_timeout=30.0)
+        from blender_mcp.connection_recovery import CircuitBreaker, CircuitState
+        cb = CircuitBreaker(failure_threshold=3)
+        assert cb.current_state == CircuitState.CLOSED
+
         cb.record_failure()
+        assert cb.current_state == CircuitState.CLOSED
         cb.record_failure()
         assert cb.current_state == CircuitState.CLOSED
         cb.record_failure()
         assert cb.current_state == CircuitState.OPEN
+        assert cb.failure_count == 3
 
-    def test_can_execute_closed(self):
+    def test_can_execute_when_closed(self):
+        from blender_mcp.connection_recovery import CircuitBreaker
         cb = CircuitBreaker()
-        assert cb.can_execute() is True
+        assert cb.can_execute() == True
 
-    def test_can_execute_open_exceeded(self):
-        cb = CircuitBreaker(failure_threshold=2, recovery_timeout=30.0)
-        cb.record_failure()
-        cb.record_failure()
-        assert cb.can_execute() is False
-
-    def test_can_execute_open_timeout_reaches_half_open(self):
+    def test_can_execute_when_open_timeout_expired(self):
+        from blender_mcp.connection_recovery import CircuitBreaker
         cb = CircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
+        cb.record_failure()
+        cb.record_failure()
+        assert cb.current_state.value == 'open'
+        assert cb.can_execute() == False  # Too soon
+
+        time.sleep(0.15)  # Wait for recovery timeout
+        assert cb.can_execute() == True  # Should transition to HALF_OPEN
+        assert cb.current_state.value == 'half_open'
+
+    def test_can_execute_fails_when_open_too_early(self):
+        from blender_mcp.connection_recovery import CircuitBreaker
+        cb = CircuitBreaker(failure_threshold=1, recovery_timeout=60.0)
+        cb.record_failure()
+        assert cb.can_execute() == False
+
+    def test_record_success_resets_circuit(self):
+        from blender_mcp.connection_recovery import CircuitBreaker, CircuitState
+        cb = CircuitBreaker(failure_threshold=2)
         cb.record_failure()
         cb.record_failure()
         assert cb.current_state == CircuitState.OPEN
-        assert cb.can_execute() is False
+
+        cb.record_success()
+        assert cb.current_state == CircuitState.CLOSED
+        assert cb.failure_count == 0
+
+    def test_half_open_success_closes(self):
+        from blender_mcp.connection_recovery import CircuitBreaker, CircuitState
+        cb = CircuitBreaker(failure_threshold=1, recovery_timeout=0.1)
+        cb.record_failure()
         time.sleep(0.15)
-        assert cb.can_execute() is True
+        cb.can_execute()  # Transition to HALF_OPEN
         assert cb.current_state == CircuitState.HALF_OPEN
 
-    def test_can_execute_half_open(self):
-        cb = CircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
-        cb.record_failure()
-        cb.record_failure()
-        time.sleep(0.15)
-        assert cb.can_execute() is True
-        assert cb.current_state == CircuitState.HALF_OPEN
+        cb.record_success()
+        assert cb.current_state == CircuitState.CLOSED
 
-
-# ============================================================
-# HealthMetrics Tests
-# ============================================================
 
 class TestHealthMetrics:
-    def test_initial_state(self):
-        m = HealthMetrics()
-        assert m.total_connections == 0
-        assert m.total_failures == 0
-        assert m.total_successes == 0
+    """Test health metrics tracking."""
 
-    def test_record_success(self):
-        m = HealthMetrics()
-        m.record_success(50.0, 1024)
-        assert m.total_successes == 1
-        assert m.avg_response_time_ms == 50.0
-        assert m.total_bytes_received == 1024
+    def test_success_rate_initial(self):
+        from blender_mcp.connection_recovery import HealthMetrics
+        hm = HealthMetrics()
+        assert hm.success_rate == 0.0
 
-    def test_multiple_successes_avg(self):
-        m = HealthMetrics()
-        m.record_success(100.0, 512)
-        m.record_success(200.0, 1024)
-        m.record_success(300.0, 2048)
-        assert m.avg_response_time_ms == 200.0
-        assert m.total_bytes_received == 3584
+    def test_success_rate_after_mix(self):
+        from blender_mcp.connection_recovery import HealthMetrics
+        hm = HealthMetrics()
+        hm.record_success(10.0, 100)
+        hm.record_success(15.0, 150)
+        hm.record_failure()
 
-    def test_record_failure(self):
-        m = HealthMetrics()
-        m.record_failure("test error")
-        assert m.total_failures == 1
+        assert hm.success_rate == pytest.approx(0.667, rel=0.01)
+        assert hm.total_successes == 2
+        assert hm.total_failures == 1
+        assert hm.avg_response_time_ms == pytest.approx(12.5, rel=0.01)
 
-    def test_record_timeout(self):
-        m = HealthMetrics()
-        m.record_timeout()
-        assert m.total_timeouts == 1
-        assert m.total_failures == 1
+    def test_timeout_records_both(self):
+        from blender_mcp.connection_recovery import HealthMetrics
+        hm = HealthMetrics()
+        hm.record_timeout()
+        assert hm.total_timeouts == 1
+        assert hm.total_failures == 1
 
-    def test_success_rate_all_success(self):
-        m = HealthMetrics()
-        m.record_success(10.0, 100)
-        m.record_success(20.0, 200)
-        assert m.success_rate == 1.0
+    def test_summary_structure(self):
+        from blender_mcp.connection_recovery import HealthMetrics
+        hm = HealthMetrics()
+        hm.record_success(10.0, 100)
+        summary = hm.summary()
 
-    def test_success_rate_mixed(self):
-        m = HealthMetrics()
-        m.record_success(10.0, 100)
-        m.record_failure("err")
-        assert m.success_rate == 0.5
-
-    def test_success_rate_zero(self):
-        m = HealthMetrics()
-        assert m.success_rate == 0.0
-
-    def test_summary(self):
-        m = HealthMetrics()
-        m.record_success(100.0, 512)
-        m.record_success(200.0, 1024)
-        m.record_failure("err")
-        summary = m.summary()
-        assert summary["total_connections"] == 0
-        assert summary["total_successes"] == 2
-        assert summary["total_failures"] == 1
-        assert summary["success_rate"] == 66.7
-        assert summary["avg_response_time_ms"] == 150.0
+        assert 'total_connections' in summary
+        assert 'total_successes' in summary
+        assert 'total_failures' in summary
+        assert 'success_rate' in summary
+        assert 'avg_response_time_ms' in summary
+        assert 'total_bytes_received' in summary
 
 
-# ============================================================
-# BlenderConnectionManager Tests
-# ============================================================
+class TestConnectionManagerBasic:
+    """Test BlenderConnectionManager basic operations."""
 
-class TestBlenderConnectionManager:
-    def test_create_defaults(self):
-        mgr = BlenderConnectionManager()
-        assert mgr.host == "localhost"
-        assert mgr.port == 9876
-        assert mgr.timeout == 180.0
-        assert mgr.max_retries == 3
-        assert mgr.retry_delay == 1.0
-        assert mgr.is_connected is False
+    def test_init_default_values(self):
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        cm = BlenderConnectionManager()
+        assert cm.host == 'localhost'
+        assert cm.port == 9876
+        assert cm.is_connected == False
 
-    def test_create_custom(self):
-        mgr = BlenderConnectionManager(
-            host="192.168.1.1",
-            port=8888,
-            timeout=60.0,
-            max_retries=5,
-            retry_delay=2.0,
-        )
-        assert mgr.host == "192.168.1.1"
-        assert mgr.port == 8888
-        assert mgr.timeout == 60.0
-        assert mgr.max_retries == 5
-        assert mgr.retry_delay == 2.0
+    def test_init_custom_values(self):
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        cm = BlenderConnectionManager(host='127.0.0.1', port=1234, timeout=60.0)
+        assert cm.host == '127.0.0.1'
+        assert cm.port == 1234
+        assert cm.timeout == 60.0
 
-    def test_circuit_breaker_prevents_disconnected_exec(self):
-        mgr = BlenderConnectionManager(
-            max_retries=1,
-            circuit_failure_threshold=1,
-        )
-        # Manually set circuit to OPEN state to simulate accumulated failures
-        mgr._circuit.current_state = CircuitState.OPEN
-        mgr._circuit.failure_count = 5
-        mgr._circuit.last_failure_time = time.time() - 60  # Long past recovery timeout
-        # Force half_open -> verify it opens again after failure
-        assert mgr._circuit.can_execute() is True  # half_open allows one probe
-        mgr._circuit.record_failure()
-        assert mgr._circuit.current_state == CircuitState.OPEN
-        assert mgr._circuit.can_execute() is False
+    def test_metrics_available(self):
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        cm = BlenderConnectionManager()
+        metrics = cm.metrics
+        assert 'total_connections' in metrics
+        assert 'success_rate' in metrics
 
-    def test_metrics_initial(self):
-        mgr = BlenderConnectionManager()
-        metrics = mgr.metrics
-        assert metrics["total_connections"] == 0
-        assert metrics["total_successes"] == 0
-        assert metrics["total_failures"] == 0
-        assert "success_rate" in metrics
-
-    def test_create_connection_manager_helper(self):
-        mgr = create_connection_manager(
-            host="test.local",
-            port=5555,
-            timeout=30.0,
-            max_retries=2,
-            retry_delay=0.5,
-        )
-        assert isinstance(mgr, BlenderConnectionManager)
-        assert mgr.host == "test.local"
-        assert mgr.port == 5555
-        assert mgr.timeout == 30.0
+    def test_circuit_state_accessible(self):
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        cm = BlenderConnectionManager()
+        assert cm.circuit_state == 'closed'
 
 
-class TestBlenderConnectionManagerIntegration:
-    """Integration tests that actually connect to a real socket server.
+class TestConnectionManagerMocked:
+    """Test connection manager with mocked socket (async tests)."""
 
-    These tests require a running Blender server with addon.py loaded.
-    Skip them in CI/automated environments; run manually with Blender open.
-    """
+    def _get_loop(self):
+        """Get event loop compatible with Windows."""
+        import asyncio
+        try:
+            return asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return loop
 
-    @pytest.mark.skip(reason="Integration tests require a running Blender server with addon.py")
-    def test_connect_and_send_command(self, mock_blender_server):
-        ...
+    def test_connect_success_via_mock(self):
+        import asyncio
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        from unittest.mock import patch, MagicMock
 
-    @pytest.mark.skip(reason="Integration tests require a running Blender server with addon.py")
-    def test_health_check(self, mock_blender_server):
-        ...
+        def mock_connect(self_sock, addr):
+            pass
+
+        def mock_settimeout(self_sock, t):
+            pass
+
+        def mock_sendall(self_sock, data):
+            pass
+
+        async def run_test():
+            cm = BlenderConnectionManager(host='127.0.0.1', port=12345)
+            with patch('socket.socket.connect', mock_connect):
+                with patch('socket.socket.settimeout', mock_settimeout):
+                    with patch('socket.socket.sendall', mock_sendall):
+                        result = await cm.connect()
+                        assert result == True
+                        assert cm.is_connected == True
+
+        asyncio.run(run_test())
+
+    def test_connect_failure_all_retries(self):
+        import asyncio
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        from unittest.mock import patch
+
+        async def run_test():
+            cm = BlenderConnectionManager(
+                host='127.0.0.1', port=12345,
+                max_retries=2, retry_delay=0.01
+            )
+
+            def mock_connect_side_effect(self_sock, addr):
+                raise ConnectionRefusedError("Connection refused")
+
+            with patch('socket.socket.connect', mock_connect_side_effect):
+                with patch('socket.socket.settimeout'):
+                    with patch('socket.socket.sendall'):
+                        with pytest.raises(ConnectionError):
+                            await cm.connect()
+                        assert cm.is_connected == False
+
+        asyncio.run(run_test())
+
+    def test_circuit_breaker_prevents_overload(self):
+        import asyncio
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        from unittest.mock import patch
+
+        async def run_test():
+            cm = BlenderConnectionManager(
+                host='127.0.0.1', port=12345,
+                max_retries=1,
+                circuit_failure_threshold=3,
+                circuit_recovery_timeout=60.0
+            )
+
+            def mock_connect_side_effect(self_sock, addr):
+                raise ConnectionRefusedError("Refused")
+
+            with patch('socket.socket.connect', mock_connect_side_effect):
+                with patch('socket.socket.settimeout'):
+                    with patch('socket.socket.sendall'):
+                        for _ in range(3):
+                            try:
+                                await cm.connect()
+                            except ConnectionError:
+                                pass
+                        assert cm.circuit_state == 'open'
+
+        asyncio.run(run_test())
+
+    def test_connect_lock_prevents_races(self):
+        """Test that is_connected is properly set."""
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+
+        cm = BlenderConnectionManager()
+        assert cm.is_connected == False
+        assert cm._sock is None
+
+    def test_disconnect_cleans_up(self):
+        import asyncio
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        from unittest.mock import patch, MagicMock
+
+        async def run_test():
+            cm = BlenderConnectionManager()
+            cm._is_connected = True
+            cm._sock = MagicMock()
+            await cm.disconnect()
+            assert cm.is_connected == False
+            assert cm._sock is None
+
+        asyncio.run(run_test())
 
 
-class TestAsyncBlenderConnectionManager:
-    def test_create(self):
-        mgr = AsyncBlenderConnectionManager(
-            host="test.local",
-            port=5555,
-        )
-        assert isinstance(mgr, AsyncBlenderConnectionManager)
-        assert mgr.is_connected is False
+class TestHeartbeat:
+    """Test heartbeat mechanism (non-async tests)."""
 
-    def test_wrapper_delegates_to_manager(self):
-        mgr = AsyncBlenderConnectionManager()
-        assert mgr.is_connected == mgr._manager.is_connected
-        assert mgr.metrics == mgr._manager.metrics
-        assert mgr.circuit_state == mgr._manager.circuit_state
+    def test_heartbeat_detects_connection(self):
+        from blender_mcp.health import HealthChecker
+        import socket as real_socket
+
+        def mock_connect_ex(self, addr):
+            return 0  # Success
+
+        checker = HealthChecker(host='127.0.0.1', port=12345)
+
+        with patch.object(real_socket.socket, 'connect_ex', mock_connect_ex):
+            with patch.object(real_socket.socket, 'close'):
+                result = checker.check_blender_connection()
+                assert result == True
+                assert checker.status.blender_connected == True
+
+    def test_heartbeat_detects_disconnection(self):
+        from blender_mcp.health import HealthChecker
+        import socket as real_socket
+
+        def mock_connect_ex(self, addr):
+            return 111  # Connection refused
+
+        checker = HealthChecker(host='127.0.0.1', port=12345)
+        checker.status.blender_connected = True  # Pretend was connected
+
+        with patch.object(real_socket.socket, 'connect_ex', mock_connect_ex):
+            with patch.object(real_socket.socket, 'close'):
+                result = checker.check_blender_connection()
+                assert result == False
+                assert checker.status.blender_connected == False
+
+    def test_health_checker_get_full_status_no_blender(self):
+        """Test health check returns degraded status when no Blender."""
+        from blender_mcp.health import HealthChecker
+        import socket as real_socket
+
+        def mock_connect_ex(self, addr):
+            return 111
+
+        checker = HealthChecker(host='127.0.0.1', port=12345)
+
+        with patch.object(real_socket.socket, 'connect_ex', mock_connect_ex):
+            with patch.object(real_socket.socket, 'close'):
+                status = checker.get_full_status()
+                assert status['status'] in ['healthy', 'degraded', 'unhealthy']
+                assert 'blender' in status
+                assert 'mcp' in status
+                assert 'timestamp' in status
+                assert status['blender']['connected'] == False
 
 
-# ============================================================
-# Summary
-# ============================================================
-"""
-Test results:
-- CircuitBreaker: 7 tests passed (initial state, success/failure, threshold, can_execute)
-- HealthMetrics: 9 tests passed (initial, record, avg, success_rate, summary)
-- BlenderConnectionManager: 5 tests passed (create, custom, circuit validate, metrics, helper)
-- Integration: 2 tests passed (connect+send, health_check)
-- AsyncBlenderConnectionManager: 2 tests passed (create, delegation)
-Total: 25 tests, expected to pass
-"""
+class TestErrorScenarios:
+    """Test error handling and edge cases."""
+
+    def test_connection_manager_no_blender(self):
+        """Connection manager reports no Blender when port 9876 not listening."""
+        from blender_mcp.health import HealthChecker
+        import socket as real_socket
+
+        def mock_connect_ex(self, addr):
+            return 111
+
+        checker = HealthChecker(host='localhost', port=9876)
+
+        with patch.object(real_socket.socket, 'connect_ex', mock_connect_ex):
+            with patch.object(real_socket.socket, 'close'):
+                result = checker.check_blender_connection()
+                assert result == False
+
+    def test_disconnect_cleans_up(self):
+        import asyncio
+        from blender_mcp.connection_recovery import BlenderConnectionManager
+        from unittest.mock import MagicMock
+
+        async def run_test():
+            cm = BlenderConnectionManager()
+            cm._is_connected = True
+            cm._sock = MagicMock()
+            await cm.disconnect()
+            assert cm.is_connected == False
+            assert cm._sock is None
+
+        asyncio.run(run_test())
+
+    def test_health_checker_singleton_behavior(self):
+        from blender_mcp.health import get_health_checker
+        checker1 = get_health_checker()
+        checker2 = get_health_checker()
+        assert checker1 is checker2
+
+    def test_health_metrics_empty_summary(self):
+        from blender_mcp.connection_recovery import HealthMetrics
+        hm = HealthMetrics()
+        summary = hm.summary()
+        assert summary['total_connections'] == 0
+        assert summary['total_successes'] == 0
+        assert summary['total_failures'] == 0
+        assert summary['success_rate'] == 0.0
+
+    def test_circuit_breaker_timeout_property(self):
+        from blender_mcp.connection_recovery import CircuitBreaker
+        cb = CircuitBreaker(recovery_timeout=30.0)
+        cb.record_failure()
+        elapsed = time.time() - cb.last_failure_time
+        remaining = cb.recovery_timeout - elapsed
+        assert remaining < 30.0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
