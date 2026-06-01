@@ -1198,6 +1198,532 @@ def asset_creation_strategy() -> str:
     - The task specifically requires a basic material/color
     """
 
+# =========================================================================
+# Structured Tool Schema — AI-safe wrappers
+# =========================================================================
+
+@mcp.tool()
+@telemetry_tool("create_cube")
+def create_cube(
+    ctx: Context,
+    name: str = "Cube",
+    size: float = 1.0,
+    location: list = None
+) -> str:
+    """Create a cube object in the scene.
+
+    Parameters:
+    - name: Object name (default: 'Cube')
+    - size: Edge length in Blender units (default: 1.0)
+    - location: [x, y, z] position (default: [0, 0, 0])
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [0, 0, 0]
+        result = blender.send_command("create_cube", {
+            "name": name,
+            "size": size,
+            "location": loc
+        })
+        return f"Created cube '{name}' at {loc} with size {size}"
+    except Exception as e:
+        logger.error(f"Error creating cube: {str(e)}")
+        return f"Error creating cube: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_sphere")
+def create_sphere(
+    ctx: Context,
+    name: str = "Sphere",
+    radius: float = 1.0,
+    location: list = None,
+    segments: int = 32
+) -> str:
+    """Create a sphere/UV sphere in the scene.
+
+    Parameters:
+    - name: Object name (default: 'Sphere')
+    - radius: Sphere radius (default: 1.0)
+    - location: [x, y, z] position (default: [0, 0, 0])
+    - segments: Horizontal segments (default: 32)
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [0, 0, 0]
+        result = blender.send_command("create_sphere", {
+            "name": name,
+            "radius": radius,
+            "location": loc,
+            "segments": segments
+        })
+        return f"Created sphere '{name}' at {loc} with radius {radius}"
+    except Exception as e:
+        logger.error(f"Error creating sphere: {str(e)}")
+        return f"Error creating sphere: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_cylinder")
+def create_cylinder(
+    ctx: Context,
+    name: str = "Cylinder",
+    radius: float = 0.5,
+    depth: float = 2.0,
+    location: list = None,
+    cap_end_segments: int = 32
+) -> str:
+    """Create a cylinder in the scene.
+
+    Parameters:
+    - name: Object name (default: 'Cylinder')
+    - radius: Radius at base and top (default: 0.5)
+    - depth: Height of cylinder (default: 2.0)
+    - location: [x, y, z] position (default: [0, 0, 0])
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [0, 0, 0]
+        result = blender.send_command("create_cylinder", {
+            "name": name,
+            "radius": radius,
+            "depth": depth,
+            "location": loc,
+            "cap_end_segments": cap_end_segments
+        })
+        return f"Created cylinder '{name}' at {loc}"
+    except Exception as e:
+        logger.error(f"Error creating cylinder: {str(e)}")
+        return f"Error creating cylinder: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_torus")
+def create_torus(
+    ctx: Context,
+    name: str = "Torus",
+    major_radius: float = 1.0,
+    minor_radius: float = 0.4,
+    location: list = None
+) -> str:
+    """Create a torus (donut) in the scene.
+
+    Parameters:
+    - name: Object name (default: 'Torus')
+    - major_radius: Distance from center to tube center (default: 1.0)
+    - minor_radius: Tube radius (default: 0.4)
+    - location: [x, y, z] position (default: [0, 0, 0])
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [0, 0, 0]
+        result = blender.send_command("create_torus", {
+            "name": name,
+            "major_radius": major_radius,
+            "minor_radius": minor_radius,
+            "location": loc
+        })
+        return f"Created torus '{name}' at {loc}"
+    except Exception as e:
+        logger.error(f"Error creating torus: {str(e)}")
+        return f"Error creating torus: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_plane")
+def create_plane(
+    ctx: Context,
+    name: str = "Plane",
+    size: float = 5.0,
+    location: list = None
+) -> str:
+    """Create a plane (grid) in the scene, useful for ground/floor.
+
+    Parameters:
+    - name: Object name (default: 'Plane')
+    - size: Side length (default: 5.0)
+    - location: [x, y, z] position (default: [0, 0, 0])
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [0, 0, 0]
+        result = blender.send_command("create_plane", {
+            "name": name,
+            "size": size,
+            "location": loc
+        })
+        return f"Created plane '{name}' at {loc}"
+    except Exception as e:
+        logger.error(f"Error creating plane: {str(e)}")
+        return f"Error creating plane: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_light")
+def create_light(
+    ctx: Context,
+    name: str = "Light",
+    light_type: str = "SUN",
+    location: list = None,
+    energy: float = None
+) -> str:
+    """Create a light in the scene.
+
+    Parameters:
+    - name: Light name (default: 'Light')
+    - light_type: Type of light: 'SUN', 'POINT', 'SPOT', 'AREA' (default: 'SUN')
+    - location: [x, y, z] position (default: [5, 5, 5])
+    - energy: Light energy/brightness (default varies by type)
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [5, 5, 5]
+        result = blender.send_command("create_light", {
+            "name": name,
+            "light_type": light_type,
+            "location": loc,
+            "energy": energy
+        })
+        return f"Created {light_type} light '{name}' at {loc}"
+    except Exception as e:
+        logger.error(f"Error creating light: {str(e)}")
+        return f"Error creating light: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_camera")
+def create_camera(
+    ctx: Context,
+    name: str = "Camera",
+    location: list = None,
+    target: list = None,
+    lens: float = 35.0
+) -> str:
+    """Create a camera and optionally point it at a target.
+
+    Parameters:
+    - name: Camera name (default: 'Camera')
+    - location: [x, y, z] camera position
+    - target: [x, y, z] point to look at
+    - lens: Focal length in mm (default: 35)
+    """
+    try:
+        blender = get_blender_connection()
+        loc = location if location else [5, -5, 3]
+        result = blender.send_command("create_camera", {
+            "name": name,
+            "location": loc,
+            "target": target,
+            "lens": lens
+        })
+        return f"Created camera '{name}' at {loc}"
+    except Exception as e:
+        logger.error(f"Error creating camera: {str(e)}")
+        return f"Error creating camera: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("create_material")
+def create_material(
+    ctx: Context,
+    name: str = "Material",
+    base_color: list = None,
+    metallic: float = 0.0,
+    roughness: float = 0.5,
+    transmission: float = 0.0
+) -> str:
+    """Create a Principled BSDF material with PBR parameters.
+
+    Parameters:
+    - name: Material name (default: 'Material')
+    - base_color: [r, g, b] values 0-1 (default: [0.8, 0.8, 0.8])
+    - metallic: Metallic factor 0-1 (default: 0.0)
+    - roughness: Roughness factor 0-1 (default: 0.5)
+    - transmission: Transparency/transmission 0-1 (default: 0.0)
+    """
+    try:
+        blender = get_blender_connection()
+        color = base_color if base_color else [0.8, 0.8, 0.8]
+        result = blender.send_command("create_material", {
+            "name": name,
+            "base_color": color,
+            "metallic": metallic,
+            "roughness": roughness,
+            "transmission": transmission
+        })
+        return f"Created material '{name}' with color={color}, metallic={metallic}, roughness={roughness}"
+    except Exception as e:
+        logger.error(f"Error creating material: {str(e)}")
+        return f"Error creating material: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("apply_material")
+def apply_material(
+    ctx: Context,
+    object_name: str,
+    material_name: str
+) -> str:
+    """Apply an existing material to an object.
+
+    Parameters:
+    - object_name: Name of the target object
+    - material_name: Name of the material to apply
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("apply_material", {
+            "object_name": object_name,
+            "material_name": material_name
+        })
+        return f"Applied material '{material_name}' to object '{object_name}'"
+    except Exception as e:
+        logger.error(f"Error applying material: {str(e)}")
+        return f"Error applying material: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("set_object_transform")
+def set_object_transform(
+    ctx: Context,
+    object_name: str,
+    location: list = None,
+    rotation: list = None,
+    scale: list = None
+) -> str:
+    """Set the transform (location, rotation, scale) of an object.
+
+    Parameters:
+    - object_name: Name of the object
+    - location: [x, y, z] position
+    - rotation: [x, y, z] in radians
+    - scale: [x, y, z] scale factors
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("set_object_transform", {
+            "object_name": object_name,
+            "location": location,
+            "rotation": rotation,
+            "scale": scale
+        })
+        return f"Transform updated for '{object_name}'"
+    except Exception as e:
+        logger.error(f"Error setting transform: {str(e)}")
+        return f"Error setting transform: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("delete_object")
+def delete_object(
+    ctx: Context,
+    object_name: str
+) -> str:
+    """Delete an object from the scene.
+
+    Parameters:
+    - object_name: Name of the object to delete
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("delete_object", {
+            "object_name": object_name
+        })
+        return f"Deleted object '{object_name}'"
+    except Exception as e:
+        logger.error(f"Error deleting object: {str(e)}")
+        return f"Error deleting object: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("render_scene")
+def render_scene(
+    ctx: Context,
+    engine: str = "EEVEE",
+    resolution_x: int = 1920,
+    resolution_y: int = 1080,
+    output_path: str = None
+) -> str:
+    """Render the current scene using the specified engine.
+
+    Parameters:
+    - engine: Render engine 'EEVEE' or 'CYCLES' (default: 'EEVEE')
+    - resolution_x: Width in pixels (default: 1920)
+    - resolution_y: Height in pixels (default: 1080)
+    - output_path: Output file path (default: Blender default)
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("render_scene", {
+            "engine": engine,
+            "resolution_x": resolution_x,
+            "resolution_y": resolution_y,
+            "output_path": output_path
+        })
+        return f"Rendered scene with {engine} engine ({resolution_x}x{resolution_y})"
+    except Exception as e:
+        logger.error(f"Error rendering scene: {str(e)}")
+        return f"Error rendering scene: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("import_model")
+def import_model(
+    ctx: Context,
+    file_path: str,
+    target_name: str = None
+) -> str:
+    """Import a 3D model file into the scene.
+
+    Supports: .glb, .gltf, .fbx, .obj, .stl, .blend
+
+    Parameters:
+    - file_path: Absolute path to the model file
+    - target_name: Optional name override for the imported object
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("import_model", {
+            "file_path": file_path,
+            "target_name": target_name
+        })
+        return f"Imported model from {file_path}"
+    except Exception as e:
+        logger.error(f"Error importing model: {str(e)}")
+        return f"Error importing model: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("export_scene")
+def export_scene(
+    ctx: Context,
+    file_path: str,
+    format: str = "glb",
+    selected_only: bool = False
+) -> str:
+    """Export the current scene to a file.
+
+    Parameters:
+    - file_path: Output file path
+    - format: Export format 'glb', 'fbx', 'obj', 'stl', 'blend' (default: 'glb')
+    - selected_only: Only export selected objects
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("export_scene", {
+            "file_path": file_path,
+            "format": format,
+            "selected_only": selected_only
+        })
+        return f"Exported scene to {file_path} as {format}"
+    except Exception as e:
+        logger.error(f"Error exporting scene: {str(e)}")
+        return f"Error exporting scene: {str(e)}"
+
+@mcp.tool()
+@telemetry_tool("set_render_engine")
+def set_render_engine(
+    ctx: Context,
+    engine: str = "EEVEE",
+    samples: int = 32,
+    use_denoiser: bool = True
+) -> str:
+    """Set the render engine and its settings.
+
+    Parameters:
+    - engine: 'EEVEE' or 'CYCLES' (default: 'EEVEE')
+    - samples: Render samples (default: 32)
+    - use_denoiser: Enable denoising
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("set_render_engine", {
+            "engine": engine,
+            "samples": samples,
+            "use_denoiser": use_denoiser
+        })
+        return f"Render engine set to {engine} with {samples} samples"
+    except Exception as e:
+        logger.error(f"Error setting render engine: {str(e)}")
+        return f"Error setting render engine: {str(e)}"
+
+
+# =========================================================================
+# Health Check & Heartbeat Tools
+# =========================================================================
+
+@mcp.tool()
+def health_check(ctx: Context) -> str:
+    """Health check endpoint — returns Blender connection status, MCP state, tool count, version info.
+
+    Returns comprehensive health status including:
+    - Blender addon connectivity
+    - Connection state
+    - Last error message
+    - MCP server version and tool count
+    - Uptime
+
+    This tool is primarily used for monitoring and debugging.
+    """
+    try:
+        from .health import get_health
+        status = get_health()
+        return json.dumps(status, indent=2)
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return json.dumps({
+            "status": "error",
+            "error": str(e),
+            "timestamp": "now"
+        }, indent=2)
+
+
+# =========================================================================
+# Connection Heartbeat (periodic health probe)
+# =========================================================================
+
+async def _heartbeat_loop():
+    """Background heartbeat — probes Blender connection every 30 seconds."""
+    try:
+        from .health import get_health_checker
+        checker = get_health_checker()
+        while True:
+            await asyncio.sleep(30)
+            try:
+                checker.check_blender_connection()
+            except Exception:
+                pass  # Heartbeat failure logged by checker
+    except asyncio.CancelledError:
+        pass
+    except Exception as e:
+        logger.error(f"Heartbeat loop error: {e}")
+
+
+@asynccontextmanager
+async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
+    """Manage server startup and shutdown lifecycle"""
+    # Start heartbeat thread
+    heartbeat_task = None
+    try:
+        logger.info("BlenderMCP server starting up")
+        record_startup()
+
+        # Try to connect to Blender on startup
+        try:
+            blender = get_blender_connection()
+            logger.info("Successfully connected to Blender on startup")
+        except Exception as e:
+            logger.warning(f"Could not connect to Blender on startup: {str(e)}")
+
+        # Start heartbeat in background
+        heartbeat_task = asyncio.create_task(_heartbeat_loop())
+
+        yield {}
+    finally:
+        # Cancel heartbeat
+        if heartbeat_task:
+            heartbeat_task.cancel()
+            try:
+                await heartbeat_task
+            except asyncio.CancelledError:
+                pass
+
+        # Clean up connection on shutdown
+        global _blender_connection
+        if _blender_connection:
+            logger.info("Disconnecting from Blender on shutdown")
+            _blender_connection.disconnect()
+            _blender_connection = None
+        logger.info("BlenderMCP server shut down")
+
+
 # Main execution
 
 def main():

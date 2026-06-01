@@ -35,11 +35,72 @@ Blender-MCP Enhanced 是在 [Siddharth Ahuja](https://github.com/ahujasid/blende
 | 维度 | 原始项目 | 本增强版 |
 |------|----------|----------|
 | MCP 工具数 | ~8 | **31**（覆盖创建、材质、动画、渲染、导入导出） |
-| 连接可靠性 | 基础 TCP | **电路断路器 + 自动重连 + 健康检查** |
-| 配置管理 | 无 | **完整配置模型 + 环境变量覆盖 + 密钥管理** |
-| 测试覆盖 | 无 | **157 个单元测试（155 通过）+ 兼容性静态检查** |
-| 兼容性适配 | Blender 3.x | **Blender 5.1.2 + 3.x 向后兼容** |
-| 文档 | 基础 | **7 篇专业文档 + Release Checklist** |
+|| 连接可靠性 | 基础 TCP | **电路断路器 + 自动重连 + 心跳监测 + 健康检查** |
+|| 配置管理 | 无 | **完整配置模型 + 环境变量覆盖 + 密钥管理** |
+|| 测试覆盖 | 无 | **170+ 个单元测试 + 兼容性静态检查** |
+|| 兼容性适配 | Blender 3.x | **Blender 5.1.2 + 3.x 向后兼容** |
+|| 文档 | 基础 | **8 篇专业文档 + Release Checklist + 完整 API 文档** |
+|| AI 交互方式 | 仅 `execute_blender_code`（需写 bpy 代码） | **47 个结构化 + 语义化工具，Agent 只调用工具不写代码** |
+|| 错误恢复 | 无 | **自动重连 + 超时检测 + 状态恢复** |
+|| 运行监控 | 无 | **内置健康检查端点 + 心跳 + 遥测** |
+
+---
+
+## 🆚 为什么选择 Blender-MCP-Enhanced？
+
+**30 秒看懂：你需要一个能"说人话"的 Blender 控制接口，而不是一个让你写 Python 脚本的调试器。**
+
+### 核心优势
+
+1. **47 个 AI 友好的工具，而非 1 个代码执行器**
+   - 原始项目只有 `execute_blender_code` — 让 AI 直接写 bpy 代码
+   - 增强版提供 **47 个结构化工具**：`create_cube()`、`create_material()`、`render_scene()` 等
+   - Agent 调用的是 `{"tool": "create_cube", "size": 2}`，不是 `bpy.ops.mesh.primitive_cube_add()`
+   - 向后兼容：`execute_blender_code` 仍在，随时可降级使用
+
+2. **自动重连，不怕 Blender 崩溃**
+   - 电路断路器模式：5 次失败后自动暂停，30 秒后重试
+   - 背景心跳：每 30 秒探测一次 Blender 连接状态
+   - 连接断开时自动恢复，不需要手动重启
+
+3. **Blender 5.1.2 原生适配**
+   - 解决了 5.1.2 的 Breaking Changes：`render_samples` → `taa_render_samples`
+   - 材质系统使用 `mat.use_nodes = True` + `ShaderNodeBsdfPrincipled` 显式节点构建
+   - 集合体 API：`bpy.context.collection.objects.link` → `scene.collection.objects.link`
+   - 渲染输出自动定位到用户目录
+
+4. **完整的外部资产集成**
+   - PolyHaven：HDRIs、纹理、模型一键下载
+   - Sketchfab：搜索、预览、下载 3D 模型
+   - Hyper3D Rodin：文本/图片生成 3D 模型
+   - Hunyuan3D：腾讯文心 3D 生成，支持 API/本地模式
+   - 智能资产推荐策略：AI 自动选择最佳来源
+
+5. **生产级工程保障**
+   - 170+ 单元测试，覆盖率持续提高
+   - GitHub Actions CI：每次提交自动 lint + 测试
+   - Release Checklist：提交前 47 项强制检查
+   - 所有 Python 文件包含 XUJL/SZU 专业版权头
+
+6. **开箱即用的工作流**
+   - 从 Blender 3.x 到 5.1.2 平滑迁移
+   - 5 分钟内完成首次 AI 调用
+   - 支持 Claude Desktop、Cursor、VS Code、Hermes Agent 等客户端
+
+### 典型使用场景
+
+| 场景 | 原始项目 | 增强版 |
+|------|----------|--------|
+| 创建场景 | 写 bpy 脚本 | `"创建 3 个立方体"` |
+| 布光 | 手动设置灯光参数 | `create_light(type="SUN", energy=5)` |
+| 材质 | 手动编辑节点树 | `create_material(color=[1,0,0], metallic=0.9)` |
+| 渲染 | 设置渲染属性 | `render_scene(engine="EEVEE")` |
+| 导入模型 | 编写导入脚本 | `import_model("/path/to/model.glb")` |
+| 连接断开 | 手动重启 | 自动重连 |
+| 监控状态 | 查看日志 | `health_check()` 一键获取 |
+| 资产搜索 | 手动下载 | `search_polyhaven_assets("furniture")` |
+
+**一句话总结**：原始项目给你一个"Python 解释器"，增强版给你一个"3D 创作工作台"。
 
 ---
 
