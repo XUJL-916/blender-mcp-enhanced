@@ -43,6 +43,7 @@ for i, arg in enumerate(sys.argv):
         break
 
 output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = output_dir.resolve()
 
 
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -131,8 +132,13 @@ def get_scene_stats():
         stats["memory"] = mem
     return stats
 
-# Stress test levels
-test_levels = [100, 500, 1000, 5000, 10000]
+# Stress test levels. Keep defaults suitable for automated regression runs;
+# set BLENDER_MCP_STRESS_LEVELS=100,500,1000,5000,10000 for full soak tests.
+levels_env = os.getenv("BLENDER_MCP_STRESS_LEVELS")
+if levels_env:
+    test_levels = [int(part.strip()) for part in levels_env.split(",") if part.strip()]
+else:
+    test_levels = [100, 500, 1000]
 
 for level in test_levels:
     print(f"\n{'='*60}")

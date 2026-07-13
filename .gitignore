@@ -41,6 +41,15 @@ compatibility_report.json
 docs/REGRESSION_REPORT.json
 docs/REGRESSION_SUMMARY.txt
 *.crash.txt
+--output/
+demo_outputs/
+backup_*/
+backup_before_*/
+backup_pre_*/
+blender_stdout.txt
+blender_stderr.txt
+test_results.json
+test_render_*.png
 
 # Release temp
 .release_temp/

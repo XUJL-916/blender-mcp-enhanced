@@ -22,6 +22,7 @@
 
 import bpy
 import sys
+import json
 from pathlib import Path
 import os
 
@@ -39,6 +40,7 @@ for i, arg in enumerate(sys.argv):
         break
 
 output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = output_dir.resolve()
 
 
 # 确保输出目录存在
@@ -120,6 +122,7 @@ print(f"渲染设备: {scene.cycles.device}")
 
 # 设置输出
 render.filepath = str(output_dir / "test4_eevee_render.png")
+render_path = Path(render.filepath)
 render.image_settings.file_format = "PNG"
 render.image_settings.color_mode = "RGBA"
 render.image_settings.color_depth = "16"
@@ -140,12 +143,11 @@ print(f"分辨率: {render.resolution_x}x{render.resolution_y}")
 
 start_time = __import__('time').time()
 try:
-    bpy.ops.render.render(write_standalone=True, use_viewport=True)
+    bpy.ops.render.render(write_still=True, use_viewport=True)
     elapsed = __import__('time').time() - start_time
     print(f"EEVEE 渲染完成: {elapsed:.1f}s")
     
     # 验证文件
-    render_path = Path(render.filepath)
     if render_path.exists():
         size = render_path.stat().st_size
         print(f"  [PASS] 文件存在: {render_path} ({size} bytes)")
@@ -184,7 +186,8 @@ print("=" * 60)
 scene.render.engine = "CYCLES"
 scene.cycles.device = "CPU"
 scene.cycles.samples = 64  # 低采样数加速测试
-scene.cycles.min_bounces = 0
+if hasattr(scene.cycles, "min_bounces"):
+    scene.cycles.min_bounces = 0
 scene.cycles.max_bounces = 4
 
 print(f"引擎: {scene.render.engine}")
@@ -193,16 +196,16 @@ print(f"采样数: {scene.cycles.samples}")
 
 # 设置输出
 render.filepath = str(output_dir / "test4_cycles_render.png")
+render_path = Path(render.filepath)
 
 # 渲染
 start_time = __import__('time').time()
 try:
-    bpy.ops.render.render(write_standalone=True, use_viewport=True)
+    bpy.ops.render.render(write_still=True, use_viewport=True)
     elapsed = __import__('time').time() - start_time
     print(f"Cycles 渲染完成: {elapsed:.1f}s")
     
     # 验证文件
-    render_path = Path(render.filepath)
     if render_path.exists():
         size = render_path.stat().st_size
         print(f"  [PASS] 文件存在: {render_path} ({size} bytes)")
