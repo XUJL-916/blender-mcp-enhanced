@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  config_new.py
 #  ================================================================
@@ -18,14 +18,13 @@
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 import os
 import logging
 import runpy
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 logger = logging.getLogger("blender-mcp.config")
 

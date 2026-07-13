@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  health.py
 #  ================================================================
@@ -19,7 +19,7 @@
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 """
 Health check module for Blender-MCP Enhanced.
@@ -39,7 +39,7 @@ import json
 import time
 import socket
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 logger = logging.getLogger("blender-mcp.health")
 
@@ -144,7 +144,7 @@ class HealthChecker:
         import importlib.metadata
 
         try:
-            mcp_module = importlib.import_module("mcp.server")
+            importlib.import_module("mcp.server")
             mcp_version = importlib.metadata.version("mcp")
         except Exception as e:
             mcp_version = f"error: {str(e)}"

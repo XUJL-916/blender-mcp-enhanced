@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  server.py
 #  ================================================================
@@ -18,7 +18,7 @@
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 # blender_mcp_server.py
 from mcp.server.fastmcp import FastMCP, Context, Image
@@ -29,7 +29,7 @@ import logging
 import tempfile
 from dataclasses import dataclass
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Dict, Any, List
+from typing import AsyncIterator, Dict, Any
 import os
 from pathlib import Path
 import base64
@@ -37,7 +37,7 @@ import re
 from urllib.parse import urlparse
 
 # Import telemetry
-from .telemetry import record_startup, get_telemetry
+from .telemetry import record_startup
 from .telemetry_decorator import telemetry_tool
 
 # Configure logging
@@ -85,6 +85,7 @@ class BlenderCommandError(RuntimeError):
         return {"command": self.command, "code": self.code, "type": self.error_type,
                 "message": str(self), "retriable": self.retriable, "meta": self.meta}
 
+
 @dataclass
 class BlenderConnection:
     host: str
@@ -110,7 +111,7 @@ class BlenderConnection:
             if self.sock:
                 try:
                     self.sock.close()
-                except:
+                except Exception:
                     pass
                 self.sock = None
             return False
@@ -244,13 +245,12 @@ class BlenderConnection:
 
             except (socket.timeout, BrokenPipeError, ConnectionResetError, ConnectionError) as e:
                 last_error = str(e)
-                was_connected = bool(self.sock)
                 logger.warning(f"Transient error attempt {attempt}/{max_attempts}: {e}")
                 # Invalidate broken socket
                 if self.sock:
                     try:
                         self.sock.close()
-                    except:
+                    except Exception:
                         pass
                     self.sock = None
 
@@ -272,6 +272,7 @@ class BlenderConnection:
         # All retries exhausted
         raise ConnectionError(f"All {max_attempts} attempts failed. Last error: {last_error}")
 
+
 @asynccontextmanager
 async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
     """Manage server startup and shutdown lifecycle"""
@@ -285,7 +286,7 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
             logger.debug(f"Failed to record startup telemetry: {e}")
 
         try:
-            blender = get_blender_connection()
+            get_blender_connection()
             logger.info("Successfully connected to Blender on startup")
         except Exception as e:
             logger.warning(f"Could not connect to Blender on startup: {str(e)}")
@@ -320,13 +321,14 @@ mcp = FastMCP(
 _blender_connection = None
 _polyhaven_enabled = False  # Add this global variable
 
+
 def get_blender_connection():
     """Get or create a persistent Blender connection.
 
     Trusts the existing connection unless an error proves it dead.
     No ping on every call — avoids unnecessary latency.
     """
-    global _blender_connection, _polyhaven_enabled
+    global _blender_connection
 
     if _blender_connection is not None:
         return _blender_connection
@@ -365,6 +367,7 @@ def get_scene_info(ctx: Context) -> str:
         logger.error(f"Error getting scene info from Blender: {str(e)}")
         return f"Error getting scene info: {str(e)}"
 
+
 @telemetry_tool("get_object_info")
 @mcp.tool()
 def get_object_info(ctx: Context, object_name: str) -> str:
@@ -383,6 +386,7 @@ def get_object_info(ctx: Context, object_name: str) -> str:
     except Exception as e:
         logger.error(f"Error getting object info from Blender: {str(e)}")
         return f"Error getting object info: {str(e)}"
+
 
 @telemetry_tool("get_viewport_screenshot")
 @mcp.tool()
@@ -446,6 +450,7 @@ def execute_blender_code(ctx: Context, code: str) -> str:
         logger.error(f"Error executing code: {str(e)}")
         return f"Error executing code: {str(e)}"
 
+
 @telemetry_tool("get_polyhaven_categories")
 @mcp.tool()
 def get_polyhaven_categories(ctx: Context, asset_type: str = "hdris") -> str:
@@ -478,6 +483,7 @@ def get_polyhaven_categories(ctx: Context, asset_type: str = "hdris") -> str:
     except Exception as e:
         logger.error(f"Error getting Polyhaven categories: {str(e)}")
         return f"Error getting Polyhaven categories: {str(e)}"
+
 
 @telemetry_tool("search_polyhaven_assets")
 @mcp.tool()
@@ -528,6 +534,7 @@ def search_polyhaven_assets(
     except Exception as e:
         logger.error(f"Error searching Polyhaven assets: {str(e)}")
         return f"Error searching Polyhaven assets: {str(e)}"
+
 
 @telemetry_tool("download_polyhaven_asset")
 @mcp.tool()
@@ -580,6 +587,7 @@ def download_polyhaven_asset(
     except Exception as e:
         logger.error(f"Error downloading Polyhaven asset: {str(e)}")
         return f"Error downloading Polyhaven asset: {str(e)}"
+
 
 @telemetry_tool("set_texture")
 @mcp.tool()
@@ -641,6 +649,7 @@ def set_texture(
         logger.error(f"Error applying texture: {str(e)}")
         return f"Error applying texture: {str(e)}"
 
+
 @telemetry_tool("get_polyhaven_status")
 @mcp.tool()
 def get_polyhaven_status(ctx: Context) -> str:
@@ -659,6 +668,7 @@ def get_polyhaven_status(ctx: Context) -> str:
     except Exception as e:
         logger.error(f"Error checking PolyHaven status: {str(e)}")
         return f"Error checking PolyHaven status: {str(e)}"
+
 
 @telemetry_tool("get_hyper3d_status")
 @mcp.tool()
@@ -681,6 +691,7 @@ def get_hyper3d_status(ctx: Context) -> str:
         logger.error(f"Error checking Hyper3D status: {str(e)}")
         return f"Error checking Hyper3D status: {str(e)}"
 
+
 @telemetry_tool("get_sketchfab_status")
 @mcp.tool()
 def get_sketchfab_status(ctx: Context) -> str:
@@ -699,6 +710,7 @@ def get_sketchfab_status(ctx: Context) -> str:
     except Exception as e:
         logger.error(f"Error checking Sketchfab status: {str(e)}")
         return f"Error checking Sketchfab status: {str(e)}"
+
 
 @telemetry_tool("search_sketchfab_models")
 @mcp.tool()
@@ -722,7 +734,13 @@ def search_sketchfab_models(
     """
     try:
         blender = get_blender_connection()
-        logger.info(f"Searching Sketchfab models with query: {query}, categories: {categories}, count: {count}, downloadable: {downloadable}")
+        logger.info(
+            "Searching Sketchfab models with query: %s, categories: %s, count: %s, downloadable: %s",
+            query,
+            categories,
+            count,
+            downloadable,
+        )
         result = blender.send_command("search_sketchfab_models", {
             "query": query,
             "categories": categories,
@@ -776,6 +794,7 @@ def search_sketchfab_models(
         import traceback
         logger.error(traceback.format_exc())
         return f"Error searching Sketchfab models: {str(e)}"
+
 
 @telemetry_tool("download_sketchfab_model")
 @mcp.tool()
@@ -866,7 +885,7 @@ def download_sketchfab_model(
             imported_objects = result.get("imported_objects", [])
             object_names = ", ".join(imported_objects) if imported_objects else "none"
 
-            output = f"Successfully imported model.\n"
+            output = "Successfully imported model.\n"
             output += f"Created objects: {object_names}\n"
 
             # Add dimension info if available
@@ -893,21 +912,23 @@ def download_sketchfab_model(
         logger.error(traceback.format_exc())
         return f"Error downloading Sketchfab model: {str(e)}"
 
+
 def _process_bbox(original_bbox: list[float] | list[int] | None) -> list[int] | None:
     if original_bbox is None:
         return None
     if all(isinstance(i, int) for i in original_bbox):
         return original_bbox
-    if any(i<=0 for i in original_bbox):
+    if any(i <= 0 for i in original_bbox):
         raise ValueError("Incorrect number range: bbox must be bigger than zero!")
     return [int(float(i) / max(original_bbox) * 100) for i in original_bbox] if original_bbox else None
+
 
 @telemetry_tool("generate_hyper3d_model_via_text")
 @mcp.tool()
 def generate_hyper3d_model_via_text(
     ctx: Context,
     text_prompt: str,
-    bbox_condition: list[float]=None
+    bbox_condition: list[float] = None
 ) -> str:
     """
     Generate 3D asset using Hyper3D by giving description of the desired asset, and import the asset into Blender.
@@ -916,7 +937,8 @@ def generate_hyper3d_model_via_text(
 
     Parameters:
     - text_prompt: A short description of the desired model in **English**.
-    - bbox_condition: Optional. If given, it has to be a list of floats of length 3. Controls the ratio between [Length, Width, Height] of the model.
+    - bbox_condition: Optional list of three floats controlling the model's
+      [Length, Width, Height] ratio.
 
     Returns a message indicating success or failure.
     """
@@ -939,13 +961,14 @@ def generate_hyper3d_model_via_text(
         logger.error(f"Error generating Hyper3D task: {str(e)}")
         return f"Error generating Hyper3D task: {str(e)}"
 
+
 @telemetry_tool("generate_hyper3d_model_via_images")
 @mcp.tool()
 def generate_hyper3d_model_via_images(
     ctx: Context,
-    input_image_paths: list[str]=None,
-    input_image_urls: list[str]=None,
-    bbox_condition: list[float]=None
+    input_image_paths: list[str] = None,
+    input_image_urls: list[str] = None,
+    bbox_condition: list[float] = None
 ) -> str:
     """
     Generate 3D asset using Hyper3D by giving images of the wanted asset, and import the generated asset into Blender.
@@ -953,17 +976,21 @@ def generate_hyper3d_model_via_images(
     The generated model has a normalized size, so re-scaling after generation can be useful.
 
     Parameters:
-    - input_image_paths: The **absolute** paths of input images. Even if only one image is provided, wrap it into a list. Required if Hyper3D Rodin in MAIN_SITE mode.
-    - input_image_urls: The URLs of input images. Even if only one image is provided, wrap it into a list. Required if Hyper3D Rodin in FAL_AI mode.
-    - bbox_condition: Optional. If given, it has to be a list of ints of length 3. Controls the ratio between [Length, Width, Height] of the model.
+    - input_image_paths: A list of **absolute** input image paths. Required for
+      Hyper3D Rodin in MAIN_SITE mode, including when only one image is used.
+    - input_image_urls: A list of input image URLs. Required for Hyper3D Rodin
+      in FAL_AI mode, including when only one image is used.
+    - bbox_condition: Optional list of three integers controlling the model's
+      [Length, Width, Height] ratio.
 
-    Only one of {input_image_paths, input_image_urls} should be given at a time, depending on the Hyper3D Rodin's current mode.
+    Provide only one of {input_image_paths, input_image_urls}, according to the
+    current Hyper3D Rodin mode.
     Returns a message indicating success or failure.
     """
     if input_image_paths is not None and input_image_urls is not None:
-        return f"Error: Conflict parameters given!"
+        return "Error: Conflict parameters given!"
     if input_image_paths is None and input_image_urls is None:
-        return f"Error: No image given!"
+        return "Error: No image given!"
     if input_image_paths is not None:
         if not all(os.path.exists(i) for i in input_image_paths):
             return "Error: not all image paths are valid!"
@@ -996,12 +1023,13 @@ def generate_hyper3d_model_via_images(
         logger.error(f"Error generating Hyper3D task: {str(e)}")
         return f"Error generating Hyper3D task: {str(e)}"
 
+
 @telemetry_tool("poll_rodin_job_status")
 @mcp.tool()
 def poll_rodin_job_status(
     ctx: Context,
-    subscription_key: str=None,
-    request_id: str=None,
+    subscription_key: str = None,
+    request_id: str = None,
 ):
     """
     Check if the Hyper3D Rodin generation task is completed.
@@ -1040,13 +1068,14 @@ def poll_rodin_job_status(
         logger.error(f"Error generating Hyper3D task: {str(e)}")
         return f"Error generating Hyper3D task: {str(e)}"
 
+
 @telemetry_tool("import_generated_asset")
 @mcp.tool()
 def import_generated_asset(
     ctx: Context,
     name: str,
-    task_uuid: str=None,
-    request_id: str=None,
+    task_uuid: str = None,
+    request_id: str = None,
 ):
     """
     Import the asset generated by Hyper3D Rodin after the generation task is completed.
@@ -1074,6 +1103,7 @@ def import_generated_asset(
         logger.error(f"Error generating Hyper3D task: {str(e)}")
         return f"Error generating Hyper3D task: {str(e)}"
 
+
 @mcp.tool()
 def get_hunyuan3d_status(ctx: Context) -> str:
     """
@@ -1090,6 +1120,7 @@ def get_hunyuan3d_status(ctx: Context) -> str:
     except Exception as e:
         logger.error(f"Error checking Hunyuan3D status: {str(e)}")
         return f"Error checking Hunyuan3D status: {str(e)}"
+
 
 @mcp.tool()
 def generate_hunyuan3d_model(
@@ -1128,10 +1159,11 @@ def generate_hunyuan3d_model(
         logger.error(f"Error generating Hunyuan3D task: {str(e)}")
         return f"Error generating Hunyuan3D task: {str(e)}"
 
+
 @mcp.tool()
 def poll_hunyuan_job_status(
     ctx: Context,
-    job_id: str=None,
+    job_id: str = None,
 ):
     """
     Check if the Hunyuan3D generation task is completed.
@@ -1143,7 +1175,8 @@ def poll_hunyuan_job_status(
         Returns the generation task status. The task is done if status is "DONE".
         The task is in progress if status is "RUN".
         If status is "DONE", returns ResultFile3Ds, which is the generated ZIP model path
-        When the status is "DONE", the response includes a field named ResultFile3Ds that contains the generated ZIP file path of the 3D model in OBJ format.
+        When the status is "DONE", ResultFile3Ds contains the generated ZIP
+        file path for the model in OBJ format.
         This is a polling API, so only proceed if the status are finally determined ("DONE" or some failed state).
     """
     try:
@@ -1156,6 +1189,7 @@ def poll_hunyuan_job_status(
     except Exception as e:
         logger.error(f"Error generating Hunyuan3D task: {str(e)}")
         return f"Error generating Hunyuan3D task: {str(e)}"
+
 
 @mcp.tool()
 def import_generated_asset_hunyuan(
@@ -1220,7 +1254,8 @@ def asset_creation_strategy() -> str:
                 1. Create the model generation task
                     - Use generate_hyper3d_model_via_images() if image(s) is/are given
                     - Use generate_hyper3d_model_via_text() if generating 3D asset using text prompt
-                    If key type is free_trial and insufficient balance error returned, tell the user that the free trial key can only generated limited models everyday, they can choose to:
+                    If a free_trial key has insufficient balance, explain the
+                    daily generation limit and offer these choices:
                     - Wait for another day and try again
                     - Go to hyper3d.ai to find out how to get their own API key
                     - Go to fal.ai to get their own private API key
@@ -1228,10 +1263,12 @@ def asset_creation_strategy() -> str:
                     - Use poll_rodin_job_status() to check if the generation task has completed or failed
                 3. Import the asset
                     - Use import_generated_asset() to import the generated GLB model the asset
-                4. After importing the asset, ALWAYS check the world_bounding_box of the imported mesh, and adjust the mesh's location and size
+                4. After importing, ALWAYS inspect the imported mesh's
+                   world_bounding_box and adjust its location and size.
                     Adjust the imported mesh's location, scale, rotation, so that the mesh is on the right spot.
 
-                You can reuse assets previous generated by running python code to duplicate the object, without creating another generation task.
+                Reuse previously generated assets by duplicating the object
+                instead of creating another generation task.
         4. Hunyuan3D
             Hunyuan3D is good at generating 3D models for single item.
             So don't try to:
@@ -1244,7 +1281,8 @@ def asset_creation_strategy() -> str:
                 if Hunyuan3D mode is "OFFICIAL_API":
                     - For objects/models, do the following steps:
                         1. Create the model generation task
-                            - Use generate_hunyuan3d_model by providing either a **text description** OR an **image(local or urls) reference**.
+                            - Use generate_hunyuan3d_model with either a **text
+                              description** OR an **image (local or URL) reference**.
                             - Go to cloud.tencent.com out how to get their own SecretId and SecretKey
                         2. Poll the status
                             - Use poll_hunyuan_job_status() to check if the generation task has completed or failed
@@ -1253,9 +1291,11 @@ def asset_creation_strategy() -> str:
                     if Hunyuan3D mode is "LOCAL_API":
                         - For objects/models, do the following steps:
                         1. Create the model generation task
-                            - Use generate_hunyuan3d_model if image (local or urls)  or text prompt is given and import the asset
+                            - Use generate_hunyuan3d_model for an image (local
+                              or URL) or text prompt, then import the asset.
 
-                You can reuse assets previous generated by running python code to duplicate the object, without creating another generation task.
+                Reuse previously generated assets by duplicating the object
+                instead of creating another generation task.
 
     3. Always check the world_bounding_box for each item so that:
         - Ensure that all objects that should not be clipping are not clipping.
@@ -1280,6 +1320,7 @@ def asset_creation_strategy() -> str:
 # Structured Tool Schema — AI-safe wrappers
 # =========================================================================
 
+
 @mcp.tool()
 @telemetry_tool("create_cube")
 def create_cube(
@@ -1298,7 +1339,7 @@ def create_cube(
     try:
         blender = get_blender_connection()
         loc = location if location else [0, 0, 0]
-        result = blender.send_command("create_cube", {
+        blender.send_command("create_cube", {
             "name": name,
             "size": size,
             "location": loc
@@ -1307,6 +1348,7 @@ def create_cube(
     except Exception as e:
         logger.error(f"Error creating cube: {str(e)}")
         return f"Error creating cube: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_sphere")
@@ -1328,7 +1370,7 @@ def create_sphere(
     try:
         blender = get_blender_connection()
         loc = location if location else [0, 0, 0]
-        result = blender.send_command("create_sphere", {
+        blender.send_command("create_sphere", {
             "name": name,
             "radius": radius,
             "location": loc,
@@ -1338,6 +1380,7 @@ def create_sphere(
     except Exception as e:
         logger.error(f"Error creating sphere: {str(e)}")
         return f"Error creating sphere: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_cylinder")
@@ -1359,7 +1402,7 @@ def create_cylinder(
     try:
         blender = get_blender_connection()
         loc = location if location else [0, 0, 0]
-        result = blender.send_command("create_cylinder", {
+        blender.send_command("create_cylinder", {
             "name": name,
             "radius": radius,
             "depth": depth,
@@ -1369,6 +1412,7 @@ def create_cylinder(
     except Exception as e:
         logger.error(f"Error creating cylinder: {str(e)}")
         return f"Error creating cylinder: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_torus")
@@ -1390,7 +1434,7 @@ def create_torus(
     try:
         blender = get_blender_connection()
         loc = location if location else [0, 0, 0]
-        result = blender.send_command("create_torus", {
+        blender.send_command("create_torus", {
             "name": name,
             "major_radius": major_radius,
             "minor_radius": minor_radius,
@@ -1400,6 +1444,7 @@ def create_torus(
     except Exception as e:
         logger.error(f"Error creating torus: {str(e)}")
         return f"Error creating torus: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_plane")
@@ -1419,7 +1464,7 @@ def create_plane(
     try:
         blender = get_blender_connection()
         loc = location if location else [0, 0, 0]
-        result = blender.send_command("create_plane", {
+        blender.send_command("create_plane", {
             "name": name,
             "size": size,
             "location": loc
@@ -1428,6 +1473,7 @@ def create_plane(
     except Exception as e:
         logger.error(f"Error creating plane: {str(e)}")
         return f"Error creating plane: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_light")
@@ -1449,7 +1495,7 @@ def create_light(
     try:
         blender = get_blender_connection()
         loc = location if location else [5, 5, 5]
-        result = blender.send_command("create_light", {
+        blender.send_command("create_light", {
             "name": name,
             "light_type": light_type,
             "location": loc,
@@ -1459,6 +1505,7 @@ def create_light(
     except Exception as e:
         logger.error(f"Error creating light: {str(e)}")
         return f"Error creating light: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_camera")
@@ -1480,7 +1527,7 @@ def create_camera(
     try:
         blender = get_blender_connection()
         loc = location if location else [5, -5, 3]
-        result = blender.send_command("create_camera", {
+        blender.send_command("create_camera", {
             "name": name,
             "location": loc,
             "target": target,
@@ -1490,6 +1537,7 @@ def create_camera(
     except Exception as e:
         logger.error(f"Error creating camera: {str(e)}")
         return f"Error creating camera: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("create_material")
@@ -1505,7 +1553,8 @@ def create_material(
 
     Parameters:
     - name: Material name (default: 'Material')
-    - base_color: RGB or RGBA color values 0-1 (e.g., [0.8, 0.8, 0.8] or [0.8, 0.8, 0.8, 1.0]) (default: [0.8, 0.8, 0.8])
+    - base_color: RGB or RGBA values from 0-1, such as [0.8, 0.8, 0.8] or
+      [0.8, 0.8, 0.8, 1.0] (default: [0.8, 0.8, 0.8])
     - metallic: Metallic factor 0-1 (default: 0.0)
     - roughness: Roughness factor 0-1 (default: 0.5)
     - transmission: Transparency/transmission 0-1 (default: 0.0)
@@ -1513,7 +1562,7 @@ def create_material(
     try:
         blender = get_blender_connection()
         color = base_color if base_color else [0.8, 0.8, 0.8]
-        result = blender.send_command("create_material", {
+        blender.send_command("create_material", {
             "name": name,
             "base_color": color,
             "metallic": metallic,
@@ -1524,6 +1573,7 @@ def create_material(
     except Exception as e:
         logger.error(f"Error creating material: {str(e)}")
         return f"Error creating material: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("apply_material")
@@ -1540,7 +1590,7 @@ def apply_material(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("apply_material", {
+        blender.send_command("apply_material", {
             "object_name": object_name,
             "material_name": material_name
         })
@@ -1548,6 +1598,7 @@ def apply_material(
     except Exception as e:
         logger.error(f"Error applying material: {str(e)}")
         return f"Error applying material: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("set_object_transform")
@@ -1568,7 +1619,7 @@ def set_object_transform(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("set_object_transform", {
+        blender.send_command("set_object_transform", {
             "object_name": object_name,
             "location": location,
             "rotation": rotation,
@@ -1578,6 +1629,7 @@ def set_object_transform(
     except Exception as e:
         logger.error(f"Error setting transform: {str(e)}")
         return f"Error setting transform: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("delete_object")
@@ -1592,13 +1644,14 @@ def delete_object(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("delete_object", {
+        blender.send_command("delete_object", {
             "object_name": object_name
         })
         return f"Deleted object '{object_name}'"
     except Exception as e:
         logger.error(f"Error deleting object: {str(e)}")
         return f"Error deleting object: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("render_scene")
@@ -1624,7 +1677,7 @@ def render_scene(
     try:
         blender = get_blender_connection()
         target_path = output_path or filepath or file_path
-        result = blender.send_command("render_scene", {
+        blender.send_command("render_scene", {
             "engine": engine,
             "resolution_x": resolution_x,
             "resolution_y": resolution_y,
@@ -1637,6 +1690,7 @@ def render_scene(
     except Exception as e:
         logger.error(f"Error rendering scene: {str(e)}")
         return f"Error rendering scene: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("import_model")
@@ -1655,7 +1709,7 @@ def import_model(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("import_model", {
+        blender.send_command("import_model", {
             "file_path": file_path,
             "target_name": target_name
         })
@@ -1663,6 +1717,7 @@ def import_model(
     except Exception as e:
         logger.error(f"Error importing model: {str(e)}")
         return f"Error importing model: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("export_scene")
@@ -1681,7 +1736,7 @@ def export_scene(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("export_scene", {
+        blender.send_command("export_scene", {
             "file_path": file_path,
             "format": format,
             "selected_only": selected_only
@@ -1690,6 +1745,7 @@ def export_scene(
     except Exception as e:
         logger.error(f"Error exporting scene: {str(e)}")
         return f"Error exporting scene: {str(e)}"
+
 
 @mcp.tool()
 @telemetry_tool("set_render_engine")
@@ -1708,7 +1764,7 @@ def set_render_engine(
     """
     try:
         blender = get_blender_connection()
-        result = blender.send_command("set_render_engine", {
+        blender.send_command("set_render_engine", {
             "engine": engine,
             "samples": samples,
             "use_denoiser": use_denoiser
@@ -2200,6 +2256,7 @@ def cleanup_async_jobs(ctx: Context, keep_latest: int = 100, clear_events: bool 
         "keep_latest": keep_latest, "clear_events": clear_events,
     })
 
+
 @mcp.tool()
 def health_check(ctx: Context) -> str:
     """Health check endpoint — returns Blender connection status, MCP state, tool count, version info.
@@ -2285,13 +2342,20 @@ def blenderkit_search(
         models = result.get("results", []) or []
         if not models:
             return f"No BlenderKit results for '{query}'. Try different keywords."
-        output = f"Found {result.get('total', len(models))} results for '{query}' (type={asset_type}, only_free={only_free}):\n\n"
+        output = (
+            f"Found {result.get('total', len(models))} results for '{query}' "
+            f"(type={asset_type}, only_free={only_free}):\n\n"
+        )
         for m in models:
             if m is None:
                 continue
             output += f"- {m.get('name', 'Unnamed')} (ID: {m.get('id', 'N/A')})\n"
             output += f"  Author: {m.get('author', 'Unknown')}\n"
-            output += f"  Type: {m.get('asset_type', asset_type)} | Free: {m.get('is_free', True)} | License: {m.get('license', 'Standard')}\n"
+            output += (
+                f"  Type: {m.get('asset_type', asset_type)} | "
+                f"Free: {m.get('is_free', True)} | "
+                f"License: {m.get('license', 'Standard')}\n"
+            )
             url = m.get('url', '')
             if url:
                 output += f"  URL: {url}\n"
@@ -2673,6 +2737,7 @@ async def _heartbeat_loop():
 def main():
     """Run the MCP server"""
     mcp.run()
+
 
 if __name__ == "__main__":
     main()
