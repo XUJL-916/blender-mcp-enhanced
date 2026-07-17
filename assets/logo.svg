@@ -33,7 +33,8 @@
   <path d="M 170 100 L 190 120 L 210 120" stroke="#4a9eed" stroke-width="2" opacity="0.5"/>
   
   <!-- Text -->
-  <text x="230" y="90" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="#e5e5e5">
+  <text x="230" y="90" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#f8fafc"
+        textLength="275" lengthAdjust="spacingAndGlyphs">
     Blender-MCP
   </text>
   
@@ -43,18 +44,20 @@
   </text>
   
   <!-- Version badge -->
-  <rect x="480" y="60" width="100" height="40" fill="#1a4d2e" rx="8" stroke="#22c55e" stroke-width="2"/>
-  <text x="530" y="86" font-family="Arial, sans-serif" font-size="18" fill="#22c55e" text-anchor="middle" font-weight="bold">
+  <rect x="525" y="57" width="105" height="40" fill="#163d2b" rx="8" stroke="#22c55e" stroke-width="2"/>
+  <text x="577.5" y="83" font-family="Arial, sans-serif" font-size="18" fill="#22c55e"
+        text-anchor="middle" font-weight="bold">
     v1.5.5
   </text>
   
   <!-- Copyright line -->
-  <text x="600" y="135" font-family="Arial, sans-serif" font-size="14" fill="#a0a0a0">
+  <text x="760" y="132" font-family="Arial, sans-serif" font-size="14" fill="#cbd5e1"
+        text-anchor="end" textLength="210" lengthAdjust="spacingAndGlyphs">
     XUJL | Shenzhen University (SZU)
   </text>
   
   <!-- Tagline -->
-  <text x="600" y="160" font-family="Arial, sans-serif" font-size="12" fill="#666">
+  <text x="760" y="157" font-family="Arial, sans-serif" font-size="12" fill="#94a3b8" text-anchor="end">
     AI-Powered 3D Automation
   </text>
 </svg>
