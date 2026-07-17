@@ -53,6 +53,7 @@ def main():
                 "file": test_file.name,
                 "data": data,
             })
+    full_runner_results = load_json(BLENDER_OUTPUT / "full_test_results.json")
     
     # Also load regression report
     regression = load_json(REPORT_DIR / "REGRESSION_REPORT.json")
@@ -169,7 +170,7 @@ def main():
     sections.append("| ID | 严重性 | 描述 | 状态 |")
     sections.append("|----|--------|------|------|")
     sections.append("| KI-001 | 低 | 252 处缺失 docstring | 不影响功能 |")
-    sections.append("| KI-002 | 低 | advanced_objects.py stub 未对接 TCP | 开发中 |")
+    sections.append("| KI-002 | - | advanced_objects.py 已接入 TCP 与 Blender 处理器 | 已解决 |")
     sections.append("| KI-003 | 低 | Supabase 未安装, telemetry 静默禁用 | 按需安装 |")
     sections.append("| KI-004 | 低 | 2 个集成测试需 Blender 运行时 | 待执行 |")
     sections.append("| KI-005 | 中 | addon.py 中 4 个 bpy.ops 弃用 API | 已添加版本检查 |")
@@ -190,14 +191,23 @@ def main():
     sections.append("## 10. 最终结论")
     sections.append("")
     
-    # Calculate overall status
-    tests_run = len(test_results)
-    tests_passed = sum(1 for t in test_results if t.get("data", {}).get("verification", {}).get("status") == "PASS")
+    # Calculate overall status. Prefer the strict runner summary because it
+    # filters stale artifacts and treats timeouts as failures.
+    if full_runner_results:
+        tests_run = full_runner_results.get("total", 0)
+        tests_passed = full_runner_results.get("passed", 0)
+        tests_failed = full_runner_results.get("failed", 0)
+        tests_timed_out = full_runner_results.get("timed_out", 0)
+    else:
+        tests_run = len(test_results)
+        tests_passed = sum(1 for t in test_results if t.get("data", {}).get("verification", {}).get("status") == "PASS")
+        tests_failed = tests_run - tests_passed
+        tests_timed_out = 0
     
     if tests_run == 0:
         status = "CONDITIONAL PASS"
         reason = "Blender 运行时测试未执行（需 Blender 5.1.2 环境）"
-    elif tests_passed == tests_run:
+    elif tests_passed == tests_run and tests_failed == 0 and tests_timed_out == 0:
         status = "PASS"
         reason = "所有测试通过"
     elif tests_passed > 0:

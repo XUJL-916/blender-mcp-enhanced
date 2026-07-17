@@ -17,6 +17,15 @@ connection = {
     "port": 9876,               # Blender addon TCP port
     "timeout": 180.0,           # Socket timeout in seconds
     "max_retries": 3,           # Connection retry attempts
+    "max_request_bytes": 8388608,
+    "max_response_bytes": 67108864,
+    "max_command_queue": 256,
+    "max_async_jobs": 128,
+    "max_async_workers": 2,
+    "max_async_cpu_jobs": 2,
+    "max_async_gpu_jobs": 1,
+    "max_async_events": 2000,
+    "async_state_path": "",   # Empty uses Blender's user configuration directory
     "retry_delay": 1.0,         # Delay between retries (seconds)
 }
 
@@ -27,6 +36,7 @@ api_keys = {
     # Hyper3D Rodin
     "hyper3d_api_key": "",      # Main site API key
     "hyper3d_fal_api_key": "",  # FAL.AI API key
+    "hyper3d_free_trial_key": "", # Optional trial key shortcut
     "hyper3d_mode": "MAIN_SITE", # MAIN_SITE | FAL_AI
 
     # Hunyuan3D

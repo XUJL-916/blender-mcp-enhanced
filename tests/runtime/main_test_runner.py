@@ -23,6 +23,7 @@
 import subprocess
 import sys
 import os
+import json
 from pathlib import Path
 from datetime import datetime
 
@@ -49,6 +50,10 @@ print("  BLENDER-MCP COMPLETE TEST RUNNER")
 print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print(f"  Blender: {BLENDER_EXE}")
 print("="*80)
+
+def safe_print(text=""):
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    print(str(text).encode(encoding, errors="replace").decode(encoding, errors="replace"))
 
 results = []
 for test_name in tests:
@@ -88,6 +93,17 @@ for test_name in tests:
         elapsed = __import__('time').time() - start
         
         status = "PASS" if proc.returncode == 0 else "FAIL"
+        result_json = BLENDER_OUTPUT / f"{test_path.stem}.json"
+        if result_json.exists():
+            try:
+                with open(result_json, "r", encoding="utf-8") as f:
+                    test_data = json.load(f)
+                verification_status = test_data.get("verification", {}).get("status")
+                if verification_status and verification_status != "PASS":
+                    status = "FAIL"
+            except Exception as e:
+                status = "FAIL"
+                proc.stderr = (proc.stderr or "") + f"\nCould not parse result JSON: {e}"
         results.append({
             "test": test_name,
             "status": status,
@@ -114,22 +130,22 @@ print("="*80)
 
 passed = sum(1 for r in results if r["status"] == "PASS")
 failed = sum(1 for r in results if r["status"] == "FAIL")
-skipped = sum(1 for r in results if r["status"] in ["SKIP", "TIMEOUT"])
+timed_out = sum(1 for r in results if r["status"] == "TIMEOUT")
+skipped = sum(1 for r in results if r["status"] == "SKIP")
 
 for r in results:
-    icon = "[PASS]" if r["status"] == "PASS" else "[FAIL]" if r["status"] == "FAIL" else "[SKIP]"
+    icon = "[PASS]" if r["status"] == "PASS" else "[FAIL]" if r["status"] == "FAIL" else "[TIMEOUT]" if r["status"] == "TIMEOUT" else "[SKIP]"
     print(f"  {icon} {r['test']} ({r.get('elapsed', '?')}s)")
 
-print(f"\n  Total: {len(results)} | PASS: {passed} | FAIL: {failed} | SKIP: {skipped}")
+print(f"\n  Total: {len(results)} | PASS: {passed} | FAIL: {failed} | TIMEOUT: {timed_out} | SKIP: {skipped}")
 print("="*80)
 
-# Save results
-import json
 results_data = {
     "date": datetime.now().isoformat(),
     "total": len(results),
     "passed": passed,
     "failed": failed,
+    "timed_out": timed_out,
     "skipped": skipped,
     "tests": results,
 }
@@ -151,16 +167,17 @@ try:
             text=True,
             timeout=60,
             encoding="utf-8",
+            errors="replace",
             cwd=str(PROJECT_ROOT),
         )
         if proc.stdout:
-            print(proc.stdout)
+            safe_print(proc.stdout)
 except Exception as e:
     print(f"  Report generation error: {e}")
 
-if failed == 0:
+if failed == 0 and timed_out == 0:
     print("\nAll runtime tests PASSED!")
     sys.exit(0)
 else:
-    print(f"\n{failed} test(s) FAILED.")
+    print(f"\n{failed} test(s) FAILED, {timed_out} timed out.")
     sys.exit(1)

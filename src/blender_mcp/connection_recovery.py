@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  connection_recovery.py
 #  ================================================================
@@ -18,7 +18,7 @@
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 import asyncio
 import json
@@ -36,7 +36,7 @@ class CircuitState(str, Enum):
     """Circuit breaker states."""
     CLOSED = "closed"       # Normal operation
     OPEN = "open"           # Failing, stop trying
-    HALF_OPEN = "half_open" # Testing if service recovered
+    HALF_OPEN = "half_open"  # Testing if service recovered
 
 
 @dataclass
@@ -353,7 +353,7 @@ class BlenderConnectionManager:
 
         if self.is_connected:
             try:
-                result = await self.send_command("get_polyhaven_status")
+                await self.send_command("get_polyhaven_status")
                 status["blender_reachable"] = True
                 status["last_health_check"] = time.time()
             except Exception as e:

@@ -48,6 +48,15 @@ class TestConnectionConfig:
         assert cfg.port == 9876
         assert cfg.timeout == 180.0
         assert cfg.max_retries == 3
+        assert cfg.max_request_bytes == 8 * 1024 * 1024
+        assert cfg.max_response_bytes == 64 * 1024 * 1024
+        assert cfg.max_command_queue == 256
+        assert cfg.max_async_jobs == 128
+        assert cfg.max_async_workers == 2
+        assert cfg.max_async_cpu_jobs == 2
+        assert cfg.max_async_gpu_jobs == 1
+        assert cfg.max_async_events == 2000
+        assert cfg.async_state_path == ""
         assert cfg.retry_delay == 1.0
 
     def test_from_env_custom_values(self):
@@ -57,6 +66,9 @@ class TestConnectionConfig:
             "BLENDER_MCP_TIMEOUT": "60.0",
             "BLENDER_MCP_MAX_RETRIES": "5",
             "BLENDER_MCP_RETRY_DELAY": "2.5",
+            "BLENDER_MCP_MAX_ASYNC_JOBS": "64",
+            "BLENDER_MCP_MAX_ASYNC_WORKERS": "3",
+            "BLENDER_MCP_ASYNC_STATE_PATH": "C:/tmp/jobs.json",
         }):
             cfg = ConnectionConfig.from_env()
             assert cfg.host == "192.168.1.100"
@@ -64,6 +76,9 @@ class TestConnectionConfig:
             assert cfg.timeout == 60.0
             assert cfg.max_retries == 5
             assert cfg.retry_delay == 2.5
+            assert cfg.max_async_jobs == 64
+            assert cfg.max_async_workers == 3
+            assert cfg.async_state_path == "C:/tmp/jobs.json"
 
     def test_from_env_fallback_to_defaults(self):
         with patch.dict(os.environ, {}, clear=False):
@@ -231,6 +246,40 @@ class TestConfig:
 
     def test_config_loaded_from_file_false(self, clean_config):
         assert clean_config._loaded_from_file is False
+
+    def test_config_loads_python_config_file(self):
+        local_config = {
+            "connection": {"host": "127.0.0.1", "port": 9999},
+            "api_keys": {"hyper3d_free_trial_key": "trial_key"},
+            "blender": {"polyhaven_enabled": True},
+        }
+        with patch("pathlib.Path.exists", return_value=True), \
+             patch("runpy.run_path", return_value=local_config), \
+             patch.dict(os.environ, {}, clear=True):
+            cfg = Config()
+
+        assert cfg._loaded_from_file is True
+        assert cfg.connection.host == "127.0.0.1"
+        assert cfg.connection.port == 9999
+        assert cfg.api_keys.hyper3d_free_trial_key == "trial_key"
+        assert cfg.blender.polyhaven_enabled is True
+
+    def test_env_overrides_local_config_file(self):
+        local_config = {
+            "connection": {"host": "local-host", "port": 9999},
+            "api_keys": {"hyper3d_free_trial_key": "local_trial_key"},
+        }
+        with patch("pathlib.Path.exists", return_value=True), \
+             patch("runpy.run_path", return_value=local_config), \
+             patch.dict(os.environ, {
+                 "BLENDER_HOST": "env-host",
+                 "BLENDER_MCP_HYPER3D_FREE_TRIAL_KEY": "env_trial_key",
+             }, clear=True):
+            cfg = Config()
+
+        assert cfg.connection.host == "env-host"
+        assert cfg.connection.port == 9999
+        assert cfg.api_keys.hyper3d_free_trial_key == "env_trial_key"
 
 
 # ============================================================

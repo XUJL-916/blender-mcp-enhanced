@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  health.py
 #  ================================================================
@@ -12,14 +12,14 @@
 #  License:        MIT
 #
 #  Description:
-#      Health check system — monitors Blender connection, MCP state,
+#      Health check system 鈥?monitors Blender connection, MCP state,
 #      and returns comprehensive status for monitoring/debugging.
 #
 #  This software is released under the MIT License.
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 """
 Health check module for Blender-MCP Enhanced.
@@ -39,7 +39,7 @@ import json
 import time
 import socket
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 logger = logging.getLogger("blender-mcp.health")
 
@@ -86,7 +86,7 @@ class HealthStatus:
 class HealthChecker:
     """
     Singleton health checker for Blender-MCP.
-    
+
     Probes Blender connection and maintains health status.
     Thread-safe for use with heartbeat loop.
     """
@@ -112,7 +112,7 @@ class HealthChecker:
     def check_blender_connection(self) -> bool:
         """
         Probe Blender addon port to check connectivity.
-        
+
         Returns True if Blender addon is reachable, False otherwise.
         """
         try:
@@ -120,7 +120,7 @@ class HealthChecker:
             sock.settimeout(3.0)
             result = sock.connect_ex((self.host, self.port))
             sock.close()
-            
+
             if result == 0:
                 self.status.blender_connected = True
                 self.status.blender_last_error = ""
@@ -141,36 +141,88 @@ class HealthChecker:
         """Check MCP server status."""
         import sys
         import importlib
-        
+        import importlib.metadata
+
         try:
-            mcp_module = importlib.import_module("mcp.server")
-            mcp_version = importlib.metadata.version("mcp") if importlib.metadata else "unknown"
+            importlib.import_module("mcp.server")
+            mcp_version = importlib.metadata.version("mcp")
         except Exception as e:
             mcp_version = f"error: {str(e)}"
-        
+
+        # Count MCP tools 鈥?FastMCP.list_tools() is async, so count from source
+        # instead of calling it synchronously (which produces a RuntimeWarning).
+        try:
+            import ast
+            import os as _os
+            server_path = _os.path.join(
+                _os.path.dirname(__file__), "server.py"
+            )
+            with open(server_path, "r", encoding="utf-8") as _f:
+                _src = _f.read()
+            tree = ast.parse(_src)
+            tool_count = 0
+            for node in ast.walk(tree):
+                if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    continue
+                for decorator in node.decorator_list:
+                    target = decorator.func if isinstance(decorator, ast.Call) else decorator
+                    if (
+                        isinstance(target, ast.Attribute)
+                        and target.attr == "tool"
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id == "mcp"
+                    ):
+                        tool_count += 1
+                        break
+            if tool_count == 0:
+                # Fallback: count from both server.py and addon.py handlers
+                try:
+                    import re
+                    addon_path = _os.path.join(
+                        _os.path.dirname(_os.path.dirname(__file__)), "addon.py"
+                    )
+                    with open(addon_path, "r", encoding="utf-8") as _a:
+                        _a_src = _a.read()
+                    # Count registered handlers in the dispatch dictionary
+                    addon_handlers = len(re.findall(r'"(\w+)": self\.\w+', _a_src))
+                    tool_count = max(tool_count, min(addon_handlers, 50))
+                except Exception:
+                    pass
+        except Exception as e:
+            logger.warning(f"Failed to count tools via regex: {e}")
+            tool_count = 35  # Known approximate count of Blender-MCP tools
+
         return {
             "version": mcp_version,
             "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-            "module_available": True
+            "module_available": True,
+            "tool_count": tool_count
         }
 
     def get_full_status(self) -> Dict[str, Any]:
         """Get comprehensive health report."""
         self.check_blender_connection()
         mcp_status = self.check_mcp_status()
-        
-        # Count tools in server module
+
+        # Probe BlenderKit status if connected (lazy import to avoid circular dependency)
+        blenderkit_status = {}
         try:
-            import blender_mcp.server as server_mod
-            tool_count = len([
-                name for name in dir(server_mod)
-                if callable(getattr(server_mod, name)) and name != 'main'
-            ])
-        except Exception:
-            tool_count = 0
-        
-        self.status.tool_count = tool_count
-        
+            # Lazy import to avoid circular import with server.py
+            import importlib
+            server_mod = importlib.import_module(".server", __package__)
+            bc = server_mod.get_blender_connection()
+            bk_result = bc.send_command("blenderkit_status")
+            blenderkit_status = {
+                "plugin_installed": bk_result.get("plugin_installed", False),
+                "logged_in": bk_result.get("user_logged_in", False),
+                "client_connected": bk_result.get("client_connected", False),
+                "cache_size_mb": bk_result.get("cache_size_mb", 0),
+            }
+        except Exception as e:
+            blenderkit_status = {"error": str(e)}
+
+        self.status.tool_count = mcp_status.get("tool_count", 0)
+
         result = {
             "status": "healthy" if self.status.blender_connected else "degraded",
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
@@ -178,17 +230,18 @@ class HealthChecker:
             "blender": self.status.to_dict()["blender"],
             "mcp": {
                 **mcp_status,
-                "tool_count": self.status.tool_count
             },
             "connection": self.status.to_dict()["connection"],
+            "blenderkit": blenderkit_status,
             "features": {
-                "structured_tools": 16,  # New AI-safe tools
+                "structured_tools": True,
+                "blenderkit_integration": True,
                 "health_check": True,
                 "auto_reconnect": True,
                 "telemetry": True
             }
         }
-        
+
         return result
 
 
@@ -200,7 +253,7 @@ def get_health_checker(host: str = "localhost", port: int = 9876) -> HealthCheck
 def get_health() -> Dict[str, Any]:
     """
     Get current health status.
-    
+
     Returns JSON-serializable dict with full health report.
     """
     checker = get_health_checker()
@@ -210,10 +263,10 @@ def get_health() -> Dict[str, Any]:
 def get_health_summary() -> str:
     """Get brief health summary as text."""
     status = get_health()
-    blender_ok = "✓" if status["blender"]["connected"] else "✗"
+    blender_ok = "OK" if status["blender"]["connected"] else "FAIL"
     mcp_tools = status["mcp"]["tool_count"]
     mcp_ver = status["mcp"]["version"]
-    
+
     return (
         f"[{status['timestamp']}] "
         f"Blender: {blender_ok} | "

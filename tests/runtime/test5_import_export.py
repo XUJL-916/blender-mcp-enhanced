@@ -22,6 +22,7 @@
 
 import bpy
 import sys
+import json
 from pathlib import Path
 import os
 
@@ -39,6 +40,7 @@ for i, arg in enumerate(sys.argv):
         break
 
 output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = output_dir.resolve()
 
 
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -140,10 +142,10 @@ for file_ext, format_name, export_op in formats_to_test:
                 use_selection=False,
             )
         elif file_ext == "obj":
-            bpy.ops.export_scene.obj(
+            bpy.ops.wm.obj_export(
                 filepath=filepath,
                 check_existing=True,
-                use_selection=False,
+                export_selected_objects=False,
             )
         elif file_ext == "glb":
             bpy.ops.export_scene.gltf(
@@ -152,10 +154,10 @@ for file_ext, format_name, export_op in formats_to_test:
                 use_selection=False,
             )
         elif file_ext == "stl":
-            bpy.ops.export_mesh.stl(
+            bpy.ops.wm.stl_export(
                 filepath=filepath,
                 check_existing=True,
-                use_selection=False,
+                export_selected_objects=False,
             )
         
         # 验证导出文件
@@ -175,6 +177,7 @@ for file_ext, format_name, export_op in formats_to_test:
         
         # 删除刚创建的对象
         bpy.data.objects.remove(test_obj)
+        before_import_names = {obj.name for obj in bpy.data.objects}
         
         # 重新导入
         print(f"  重新导入...")
@@ -183,14 +186,17 @@ for file_ext, format_name, export_op in formats_to_test:
         if file_ext == "fbx":
             bpy.ops.import_scene.fbx(filepath=filepath)
         elif file_ext == "obj":
-            bpy.ops.import_scene.obj(filepath=filepath)
+            bpy.ops.wm.obj_import(filepath=filepath)
         elif file_ext == "glb":
             bpy.ops.import_scene.gltf(filepath=filepath)
         elif file_ext == "stl":
-            bpy.ops.import_mesh.stl(filepath=filepath)
+            bpy.ops.wm.stl_import(filepath=filepath)
         
         # 统计导入后的对象
-        imported_objs = [obj for obj in bpy.data.objects if "Cube" in obj.name or "Temp" in obj.name]
+        imported_objs = [
+            obj for obj in bpy.data.objects
+            if obj.name not in before_import_names and getattr(obj, "type", None) == "MESH"
+        ]
         
         if imported_objs:
             imported_stats = {
@@ -226,9 +232,8 @@ for file_ext, format_name, export_op in formats_to_test:
         })
         
         # 清理导入的对象
-        for obj in list(bpy.data.objects):
-            if "Cube" in obj.name or "Temp" in obj.name:
-                bpy.data.objects.remove(obj)
+        for obj in imported_objs:
+            bpy.data.objects.remove(obj)
         
     except Exception as e:
         print(f"  [FAIL] 操作错误: {e}")

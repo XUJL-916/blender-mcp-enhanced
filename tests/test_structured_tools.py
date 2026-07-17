@@ -89,6 +89,10 @@ class TestStructuredToolSchema:
         assert 'engine' in sig
         assert 'resolution_x' in sig
         assert 'resolution_y' in sig
+        assert 'output_path' in sig
+        assert 'filepath' in sig
+        assert 'file_path' in sig
+        assert 'samples' in sig
     
     def test_import_model_schema(self):
         """Verify import_model has file_path parameter."""
@@ -132,6 +136,13 @@ class TestHealthCheck:
         assert 'mcp' in status
         assert 'connection' in status
         assert 'timestamp' in status
+
+    def test_health_checker_counts_all_mcp_tools(self):
+        """Verify source-based tool count handles stacked decorators."""
+        from blender_mcp.health import HealthChecker
+        checker = HealthChecker()
+        mcp_status = checker.check_mcp_status()
+        assert mcp_status["tool_count"] >= 50
     
     def test_health_checker_check_connection_fails_without_blender(self):
         """Verify check_blender_connection detects disconnected state."""
@@ -257,6 +268,34 @@ class TestToolIntegration:
         assert 'timestamp' in status
         assert 'blender' in status
         assert 'mcp' in status
+
+    @patch('blender_mcp.server.get_blender_connection')
+    def test_render_scene_aliases_with_mock(self, mock_connect):
+        """Test render_scene accepts filepath aliases and forwards samples."""
+        from blender_mcp.server import render_scene
+        from unittest.mock import MagicMock
+
+        mock_blender = MagicMock()
+        mock_blender.send_command.return_value = {"status": "success"}
+        mock_connect.return_value = mock_blender
+
+        result = render_scene(
+            None,
+            engine="EEVEE",
+            resolution_x=320,
+            resolution_y=180,
+            filepath="C:/tmp/render.png",
+            samples=16,
+        )
+
+        assert "Rendered scene" in result
+        call_args = mock_blender.send_command.call_args
+        assert call_args[0][0] == "render_scene"
+        params = call_args[0][1]
+        assert params["output_path"] == "C:/tmp/render.png"
+        assert params["filepath"] == "C:/tmp/render.png"
+        assert params["file_path"] == "C:/tmp/render.png"
+        assert params["samples"] == 16
 
 
 class TestErrorHandling:

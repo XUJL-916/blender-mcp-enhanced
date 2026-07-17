@@ -1,4 +1,4 @@
-#================================================================
+# ================================================================
 #  ================================================================
 #  telemetry.py
 #  ================================================================
@@ -18,10 +18,9 @@
 #  See LICENSE file in the project root for full terms.
 #
 #  ================================================================
-#================================================================
+# ================================================================
 
 import contextlib
-import json
 import logging
 import os
 import platform
@@ -127,7 +126,12 @@ class TelemetryCollector:
         )
         self._worker.start()
 
-        logger.warning(f"Telemetry initialized (enabled={self.config.enabled}, has_supabase={HAS_SUPABASE}, customer_uuid={self._customer_uuid})")
+        logger.warning(
+            "Telemetry initialized (enabled=%s, has_supabase=%s, customer_uuid=%s)",
+            self.config.enabled,
+            HAS_SUPABASE,
+            self._customer_uuid,
+        )
 
     def _is_disabled(self) -> bool:
         """Check if telemetry is disabled via environment variables"""
@@ -188,7 +192,7 @@ class TelemetryCollector:
             result = blender.send_command("get_telemetry_consent", {})
             consent = result.get("consent", False)
             return consent
-        except Exception as e:
+        except Exception:
             # Default to False if we can't check (user hasn't given consent or Blender not connected)
             return False
 
@@ -215,7 +219,7 @@ class TelemetryCollector:
 
         # Check user consent for private data collection
         user_consent = self._check_user_consent()
-        
+
         if not user_consent:
             # Without consent, only collect minimal anonymous usage data:
             # - Session startup events
@@ -308,7 +312,7 @@ class TelemetryCollector:
                 "event_timestamp": int(event.timestamp),
             }
 
-            response = supabase.table("telemetry_events").insert(data, returning="minimal").execute()
+            supabase.table("telemetry_events").insert(data, returning="minimal").execute()
             logger.debug(f"Telemetry sent: {event.event_type}")
 
         except Exception as e:
